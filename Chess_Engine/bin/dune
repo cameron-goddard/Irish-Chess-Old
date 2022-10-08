@@ -1,0 +1,4 @@
+(executable
+ (public_name Chess_Engine)
+ (name main)
+ (libraries Chess_Engine))
