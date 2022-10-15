@@ -1,0 +1,4 @@
+(library
+(name chess)
+(public_name Chess)
+(libraries graphics))
