@@ -1,4 +1,4 @@
 (library
-(name chess)
-(public_name Chess)
-(libraries graphics))
+ (name chess)
+ (public_name Chess_Engine)
+ (libraries graphics yojson ANSITerminal))
