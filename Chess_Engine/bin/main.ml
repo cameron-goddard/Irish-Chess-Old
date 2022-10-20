@@ -43,5 +43,6 @@ let () =
   draw_queen size_of_square (generate_starting_left_square top_left size_of_square 4);
   (* Now writing Text *)
   write_letters coordinates size_of_square;
+  write_numbers coordinates size_of_square;
   Unix.sleep 100;
   print_string "Hi";
