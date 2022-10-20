@@ -16,6 +16,13 @@ match pwn_nbr with
   |_ -> ()
    
 
-let rec draw_rook size pos = 
+let draw_rook size pos = 
   match pos with 
   | (x,y) -> Graphics.fill_rect (x+size/5) (y+size/20) (3*size/5) (size*9/10)
+
+let draw_knight size pos = 
+  match pos with 
+  | (x,y) -> Graphics.fill_ellipse (x+(size/2)) (y+(size/2)) (size/4) (size/2)
+
+
+
