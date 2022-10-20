@@ -44,6 +44,7 @@ let graphed_board_position = {list_of_points = z_lst; size_of_square = size;
                       bottom_left = (size,size); bottom_right = (size, size*8); 
                       top_left = (size,size*8); top_right = (size*8,size*8)}
 let four_corners = graphed_board_position.bottom_right :: graphed_board_position.bottom_left :: graphed_board_position.top_right ::graphed_board_position.top_left :: []
+let size_of_square = graphed_board_position.size_of_square
 let view_board = Graphics.open_graph ""; 
                  quick_graph (graphed_board_position.list_of_points) size size;
 

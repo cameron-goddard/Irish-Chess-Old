@@ -10,3 +10,4 @@ type tile
 
  val view_board : 'a list
 val four_corners : (int * int) list
+val size_of_square : int
