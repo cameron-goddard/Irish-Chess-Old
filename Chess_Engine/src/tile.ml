@@ -9,6 +9,9 @@ let black_tile  = { psn = ('A',5) ;  square_color = cyan} *)
 
 let colored_tile clr left_x left_y heigth width = Graphics.set_color clr; Graphics.fill_rect left_x left_y heigth width
 
+type board_position = { list_of_points: (int * int) list; size_of_square:int; 
+                        bottom_left : (int * int); bottom_right: (int * int); 
+                        top_left: (int * int); top_right : (int * int)}
 let positions = []
 
 
@@ -29,15 +32,22 @@ let rec make_combined_positions pos x_lst inc acc =
 let rec quick_graph lst heigth width = 
   match lst with 
     | [] -> []
-    | (x,y)::t when (x + y) mod (heigth+width) = 0 -> colored_tile Graphics.black x y heigth width; quick_graph t heigth width
+    | (x,y)::t when (x + y) mod (heigth+width) = 0 -> colored_tile Graphics.red x y heigth width; quick_graph t heigth width
     | (x,y) :: t -> colored_tile Graphics.cyan x y heigth width; quick_graph t heigth width
-  
 let size = 50
 
 let x_lst = make_positions_x 8 [] 0 0 size
 let z_lst = make_combined_positions 8 x_lst size []
 
-let view_board = Graphics.open_graph "" ;  quick_graph z_lst size size
+
+let graphed_board_position = {list_of_points = z_lst; size_of_square = size; 
+                      bottom_left = (size,size); bottom_right = (size, size*8); 
+                      top_left = (size,size*8); top_right = (size*8,size*8)}
+let four_corners = graphed_board_position.bottom_right :: graphed_board_position.bottom_left :: graphed_board_position.top_right ::graphed_board_position.top_left :: []
+let view_board = Graphics.open_graph ""; 
+                 quick_graph (graphed_board_position.list_of_points) size size;
+
+
 
 
 (* 
