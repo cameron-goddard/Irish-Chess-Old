@@ -1,6 +1,7 @@
 open Chess.Tile
 open Chess.Draw_piece
 open Graphics
+open Chess.Board_text
 (* let _ = open_graph ""
 let _ = set_color blue
 let _ = fill_rect 0 0 100 100 *)
@@ -17,8 +18,10 @@ let generate_starting_right_square pos size num=
 
 
 let () =
+  (*Drawing Board  *)
   view_board;
   Graphics.set_color white;
+  (* Drawing White Pieces *)
   draw_close_row_of_pawns (size_of_square) (size_of_square) 0;
   draw_rook size_of_square bottom_left;
   draw_rook size_of_square bottom_right;
@@ -38,5 +41,7 @@ let () =
   draw_bishop size_of_square (generate_starting_left_square top_left size_of_square 3);
   draw_king size_of_square (generate_starting_left_square top_left size_of_square 5);
   draw_queen size_of_square (generate_starting_left_square top_left size_of_square 4);
+  (* Now writing Text *)
+  write_letters coordinates size_of_square;
   Unix.sleep 100;
   print_string "Hi";

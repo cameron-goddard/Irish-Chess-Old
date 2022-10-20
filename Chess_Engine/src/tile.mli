@@ -15,6 +15,7 @@ val top_left : (int * int)
 val top_right : (int * int)
 val bottom_left : (int * int)
 val bottom_right : (int * int)
+val coordinates : (int * int) list
 
 
 val graphed_board_position : board_position

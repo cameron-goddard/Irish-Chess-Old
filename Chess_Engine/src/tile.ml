@@ -49,6 +49,8 @@ let bottom_left = graphed_board_position.bottom_left
 let bottom_right = graphed_board_position.bottom_right
 let top_left = graphed_board_position.top_left
 let top_right = graphed_board_position.top_right
+
+let coordinates = graphed_board_position.list_of_points
 let view_board = Graphics.open_graph ""; 
                  quick_graph (graphed_board_position.list_of_points) size size;
 
