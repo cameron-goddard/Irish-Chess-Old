@@ -11,3 +11,10 @@ type tile
  val view_board : 'a list
 val four_corners : (int * int) list
 val size_of_square : int
+val top_left : (int * int)
+val top_right : (int * int)
+val bottom_left : (int * int)
+val bottom_right : (int * int)
+
+
+val graphed_board_position : board_position

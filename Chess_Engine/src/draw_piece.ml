@@ -10,8 +10,12 @@ match pwn_nbr with
   |pwn_nbr when pwn_nbr < 8-> Graphics.fill_poly [|(curr,2*init_size);(curr+init_size,2*init_size);(curr+init_size/2,3*init_size)|]; draw_close_row_of_pawns init_size (curr+init_size) (pwn_nbr + 1)
   |_ -> ()
 
-  let rec draw_far_row_of_pawns init_size curr pwn_nbr  = 
+let rec draw_far_row_of_pawns init_size curr pwn_nbr  = 
 match pwn_nbr with
   |pwn_nbr when pwn_nbr < 8-> Graphics.fill_poly [|(curr,7*init_size);(curr+init_size,7*init_size);(curr+init_size/2,8*init_size)|]; draw_far_row_of_pawns init_size (curr+init_size) (pwn_nbr + 1)
   |_ -> ()
    
+
+let rec draw_rook size pos = 
+  match pos with 
+  | (x,y) -> Graphics.fill_rect (x+size/5) (y+size/20) (3*size/5) (size*9/10)
