@@ -24,5 +24,20 @@ let draw_knight size pos =
   match pos with 
   | (x,y) -> Graphics.fill_ellipse (x+(size/2)) (y+(size/2)) (size/4) (size/2)
 
+let draw_bishop size pos = 
+  match pos with 
+  | (x,y) -> Graphics.fill_poly [|(x+size/2,y);(x,y+size/2);(x+size/2,y+size);(x+size,y+size/2)|]
+
+
+let draw_king size pos = 
+  match pos with 
+  | (x,y) -> Graphics.fill_circle (x+size/2) (y+size/2) (size/2)
+
+
+let draw_queen size pos = 
+  match pos with 
+  | (x,y) -> Graphics.fill_poly [|(x+size/3,y);(x+2*size/3,y);(x,y+size/2);(x+size/2,y+size);(x+size,y+size/2)|]
+
+
 
 
