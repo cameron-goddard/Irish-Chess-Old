@@ -44,3 +44,8 @@ let rec get_in_list move lst =
     
     
 let is_valid_move (move : moves) piece = get_in_list move (moves_for_piece piece)
+
+
+
+
+
