@@ -81,6 +81,16 @@ instructions on how make it work are provided below:
    opam install ANSITerminal
    ```
     
-   After that you should be able to build the project.
+   After that you should be able to build the project by running either 
+
+   ```
+   dune build
+   ```
+
+   or
+
+   ```
+   make build
+   ```
 
 4. Run the system using "make run" in the terminal in the directory of the project.
