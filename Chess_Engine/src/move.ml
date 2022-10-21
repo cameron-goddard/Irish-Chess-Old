@@ -26,7 +26,7 @@ let moves_for_piece (piece : Piece.piece_type) =
   let special_moves_for_piece piece tile =
     match piece with 
     | Pawn ->begin match tile with 
-            | (c, i)-> if c=='B' then [2,0] else []
+            | (c, i)-> if i == 2 then [2,0] else []
           end 
     | Knight -> []
     | Bishop -> []
@@ -39,7 +39,7 @@ let rec get_in_list move lst =
   match lst with 
   |[]-> false 
   | h::t-> if match move, h with
-      |(mu,mr), (h1,h2)->mu==h1 && mr ==h2 then true else  get_in_list move t 
+      |(mu,mr), (h1,h2) -> mu == h1 && mr == h2 then true else  get_in_list move t 
     
     
     
