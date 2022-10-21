@@ -7,17 +7,32 @@ let _ = set_color blue
 let _ = fill_rect 0 0 100 100 *)
 
 
-let generate_starting_left_square pos size num = 
+
+
+
+
+
+
+
+
+
+
+
+
+
+(* let generate_starting_left_square pos size num = 
   match pos with 
     |(x,y) -> (x+size*(num-1), y)
 
 let generate_starting_right_square pos size num= 
   match pos with 
-    |(x,y) -> (x-size*(num-1), y)
+    |(x,y) -> (x-size*(num-1), y) *)
 
+let main () = Chess.Controller.main ()
 
+let () = main ()
 
-let () =
+(* let () =
   (*Drawing Board  *)
   view_board;
   Graphics.set_color white;
@@ -45,4 +60,4 @@ let () =
   write_letters coordinates size_of_square;
   write_numbers coordinates size_of_square;
   Unix.sleep 100;
-  print_string "Hi";
+  print_string "Hi"; *)

@@ -1,4 +1,4 @@
-type piece_type = Pawn | Knight | Bishop | Rook | Queen| King 
+(*type piece_type = Pawn | Knight | Bishop | Rook | Queen| King 
 (** The abstract type representing a piece's type *)
 
 type team
@@ -18,3 +18,9 @@ val get_team: is_piece->team
 
 val get_pos: is_piece -> pos
 (** [get_team piece] is the position that [piece] represents *)
+
+*)
+
+type piece
+
+val empty_piece : piece
