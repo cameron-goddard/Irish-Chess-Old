@@ -1,4 +1,4 @@
-type piece_type
+type piece_type = Pawn | Knight | Bishop | Rook | Queen| King 
 
 type team
 
