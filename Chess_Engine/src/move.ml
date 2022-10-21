@@ -33,30 +33,19 @@ let moves_for_piece (piece : Piece.piece_type) =
     | Rook -> []
     | King -> []
     | Queen ->[]
-<<<<<<< HEAD
-    | Castle -> []
-    | _ -> (9909090,909090)
-let is_valid_pos move piece = get_in_list move ((moves_for_piece piece)@(special_moves_for_piece piece piece.tile))
-=======
->>>>>>> 7d828aa12c715fabb5bccddf17eba8d9abefb658
 
 
 let rec get_in_list move lst =
   match lst with 
   |[]-> false 
-<<<<<<< HEAD
-  | h::t-> if begin match move h with
-            |(mu,mr) (h1,h2)->if mu==h1 && mr == h2 then  else  get_in_list t  
-            | _ -> false end 
-
-
-
-
-=======
   | h::t-> if match move, h with
       |(mu,mr), (h1,h2)->mu==h1 && mr ==h2 then true else  get_in_list move t 
     
     
     
 let is_valid_move (move : moves) piece = get_in_list move (moves_for_piece piece)
->>>>>>> 7d828aa12c715fabb5bccddf17eba8d9abefb658
+
+
+
+
+
