@@ -34,14 +34,14 @@ let moves_for_piece piece =
     | Queen ->[]
     | Castle -> []
     | _ -> (9909090,909090)
-let is_valid_pos move piece -> get_in_list move ((moves_for_piece piece)@(special_moves_for_piece piece piece.tile))
+let is_valid_pos move piece = get_in_list move ((moves_for_piece piece)@(special_moves_for_piece piece piece.tile))
 
 
-let rec get_in_list move lst ->
+let rec get_in_list move lst =
   match lst with 
   |[]-> false 
   | h::t-> if begin match move h with
-            |(mu,mr) (h1,h2)->if mu==h1 && mr ==h2 then true else  get_in_list t  
+            |(mu,mr) (h1,h2)->if mu==h1 && mr == h2 then  else  get_in_list t  
             | _ -> false end 
 
 
