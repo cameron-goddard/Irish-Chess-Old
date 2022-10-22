@@ -1,5 +1,83 @@
 open Graphics
-(* 
+open Piece
+
+type tile = {
+  x : int;
+  y : int;
+  has_piece : bool;
+  piece : Piece.piece;
+}
+
+
+let empty_tile = {
+  x = 0;
+  y = 0;
+  has_piece = false;
+  piece = Piece.empty_piece;
+}
+
+
+let modify (tile : tile) (x_val : int) (y_val : int) (has_piece_bool : bool) (type_piece: piece) = {x = x_val; y = y_val; has_piece = has_piece_bool; piece = type_piece }
+
+
+let rec empty_tile_list (size : int) (acc : tile list) = 
+  if List.length acc = size then acc 
+  else empty_tile_list size (empty_tile :: acc)
+
+let has_piece (tile : tile) : bool = tile.has_piece
+
+
+let get_coordinates (tile:tile) : (int * int) = (tile.x,tile.y)
+let get_x (tile:tile ) : int = tile.x
+let get_y (tile:tile) : int = tile.y 
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(*(* 
 type position =  char * int 
 
 type tile = { psn : position; square_color : color }
@@ -9,9 +87,11 @@ let black_tile  = { psn = ('A',5) ;  square_color = cyan} *)
 
 let colored_tile clr left_x left_y heigth width = Graphics.set_color clr; Graphics.fill_rect left_x left_y heigth width
 
-type board_position = { list_of_points: (int * int) list; size_of_square:int; 
-                        bottom_left : (int * int); bottom_right: (int * int); 
-                        top_left: (int * int); top_right : (int * int)}
+type board_position = { 
+  list_of_points: (int * int) list; size_of_square:int; 
+  bottom_left : (int * int); bottom_right: (int * int); 
+  top_left: (int * int); top_right : (int * int)
+}
 let positions = []
 
 
@@ -103,3 +183,4 @@ For example takes input (rows, 8), (cols, 8) and spits out coordinates for the e
 let _ = draw_rect 0 0 5 5;  *)
 
 
+*)

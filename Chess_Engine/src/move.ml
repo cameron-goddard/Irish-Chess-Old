@@ -1,4 +1,4 @@
-open Piece
+(*open Piece
 
 (** amount moved forward first number, amount moved side is *)
 type moves =(int * int)
@@ -49,3 +49,4 @@ let is_valid_move (move : moves) piece = get_in_list move (moves_for_piece piece
 
 
 
+*)

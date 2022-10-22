@@ -1,6 +1,6 @@
-type piece_type = Pawn | Knight | Bishop | Rook | Queen| King 
-type team = White | Black
-type pos = char * int
+type piece_type = Pawn | Knight | Bishop | Rook | Queen | King 
+type color = White | Black
+(*type pos = char * int
 
 type is_piece = {piece_type :piece_type; team: team; position: pos}
 
@@ -21,4 +21,18 @@ let valid_int position =
   | _ -> false 
 
 
-let is_valid_pos position= if valid_char position  && valid_int position then true else false 
+let is_valid_pos position= if valid_char position  && valid_int position then true else false *)
+
+
+
+type piece = {
+  piece_type : piece_type;
+  color : color;
+}
+
+let empty_piece = {
+  piece_type = Pawn;
+  color = White;
+}
+
+let set_piece (piece:piece_type) (color_of_piece: color) : piece = {piece_type = piece; color = color_of_piece}
