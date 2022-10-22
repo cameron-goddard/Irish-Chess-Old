@@ -21,6 +21,10 @@ val get_pos: is_piece -> pos
 
 *)
 
+type piece_type = Pawn | Knight | Bishop | Rook | Queen | King 
+type color = White | Black
+
 type piece
 
 val empty_piece : piece
+val set_piece : piece_type -> color -> piece

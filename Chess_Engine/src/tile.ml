@@ -17,6 +17,25 @@ let empty_tile = {
 }
 
 
+let modify (tile : tile) (x_val : int) (y_val : int) (has_piece_bool : bool) (type_piece: piece) = {x = x_val; y = y_val; has_piece = has_piece_bool; piece = type_piece }
+
+
+let rec empty_tile_list (size : int) (acc : tile list) = 
+  if List.length acc = size then acc 
+  else empty_tile_list size (empty_tile :: acc)
+
+let has_piece (tile : tile) : bool = tile.has_piece
+
+
+let get_coordinates (tile:tile) : (int * int) = (tile.x,tile.y)
+let get_x (tile:tile ) : int = tile.x
+let get_y (tile:tile) : int = tile.y 
+
+
+
+
+  
+
 
 
 

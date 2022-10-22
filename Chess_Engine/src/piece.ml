@@ -34,3 +34,5 @@ let empty_piece = {
   piece_type = Pawn;
   color = White;
 }
+
+let set_piece (piece:piece_type) (color_of_piece: color) : piece = {piece_type = piece; color = color_of_piece}

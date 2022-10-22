@@ -1,5 +1,6 @@
 open Graphics
 open Tile
+open Board
 
 
 
@@ -16,8 +17,31 @@ let rec make_combined_positions pos x_lst inc acc =
     | [] -> acc
     | (x, y) :: t -> acc @ make_positions_y pos [] x y inc @ make_combined_positions pos t inc acc
 
-let size = 50
 
+let colored_tile clr left_x left_y size = Graphics.set_color clr; Graphics.fill_rect left_x left_y size size
+
+let rec draw_piece (tiles : tile list)  = 
+  match tiles with
+    | [] -> 
+      let _ = "empty" in
+      
+      []
+    | h::t -> 
+    if Tile.has_piece h then 
+      let _ = print_string "lsdjhflskdjhf" in
+      let _ =  fill_rect 0 0 50 50 in
+      draw_piece t 
+    else 
+      let _ = colored_tile Graphics.white ((get_x h)*50) ((get_y h)*50) 40 in
+      draw_piece t
+      
+      (*if Tile.has_piece h then 
+      (colored_tile Graphics.white ((get_x h)*size) ((get_y h)*size) size); 
+      (draw_piece t size) else 
+        draw_piece t size*)
+
+
+let size = 50
 (*List of x coords*)
 let x_lst = make_positions_x 8 [] 0 0 size
 
@@ -29,30 +53,22 @@ let init =
   Graphics.open_graph "";
   set_window_title "Chess"; ()
 
-let colored_tile clr left_x left_y heigth width = Graphics.set_color clr; Graphics.fill_rect left_x left_y heigth width
 
 let rec draw_helper xy_lst =
   match xy_lst with 
     | [] -> []
     | (x,y) :: t when Int.abs (x-y) mod 20 = 0 -> 
-      print_string "~~~~";
-      print_int x;
-      print_string ", ";
-      print_int y;
-      print_string "~~~~\n";
-      colored_tile Graphics.black x y size size;
+      colored_tile Graphics.black x y size ;
       draw_helper t
     | (x,y) :: t ->
-      print_string "~~~~";
-      print_int x;
-      print_string ", ";
-      print_int y;
-      print_string "~~~~\n";
-      colored_tile Graphics.cyan x y size size; 
+      colored_tile Graphics.cyan x y size; 
       draw_helper t
 
 let draw_board board = 
-  draw_helper xy_lst; ()
+  draw_helper xy_lst;
+  (* draw_piece (Board.get_tile_list board) ; *)
+  
+  ()
 
 (*let draw_pieces =*)
 
