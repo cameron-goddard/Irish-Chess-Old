@@ -33,8 +33,8 @@ let rec init_pawn_position (tiles : tile list ) acc =
 let get_tile_list (board: t) = 
   board.tile_list
 
-
-let init_tiles = init_pawn_position (empty_tile_board_list.tile_list) [] 
+let init_positioned_tiles = xy_generate (Tile.empty_tile_list 64 []) [] 0 0
+let init_tiles =  init_pawn_position init_positioned_tiles []
 
 let init (name: string) = {
   tile_list = init_tiles

@@ -3,6 +3,10 @@ open Tile
 open Board
 
 
+let rec print_tile_list (tiles : tile list ) = 
+  match tiles with 
+  |[] -> print_newline
+  |h ::t -> print_int (Tile.get_x h); print_int (Tile.get_y h); print_tile_list t
 
 let rec make_positions_x num_pos lst x y inc = 
   if List.length lst = num_pos then lst
@@ -24,7 +28,6 @@ let rec draw_piece (tiles : tile list)  =
   match tiles with
     | [] -> 
       let _ = "empty" in
-      
       []
     | h::t -> 
     if Tile.has_piece h then 
@@ -32,7 +35,7 @@ let rec draw_piece (tiles : tile list)  =
       let _ =  fill_rect 0 0 50 50 in
       draw_piece t 
     else 
-      let _ = colored_tile Graphics.white ((get_x h)*50) ((get_y h)*50) 40 in
+      let _ = colored_tile Graphics.white ((get_x h)*50 + 5) ((get_y h)*50 + 5) 40 in
       draw_piece t
       
       (*if Tile.has_piece h then 
@@ -66,7 +69,8 @@ let rec draw_helper xy_lst =
 
 let draw_board board = 
   draw_helper xy_lst;
-  (* draw_piece (Board.get_tile_list board) ; *)
+  print_tile_list (Board.get_tile_list (Board.init "woah"));
+  draw_piece (Board.get_tile_list (Board.init "woah")) ;
   
   ()
 
