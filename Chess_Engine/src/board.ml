@@ -21,20 +21,22 @@ let rec xy_generate (tiles : tile list) (acc : tile list) (x_inc : int) (y_inc :
       else acc
   
 
+
+(* This function is losing information right now, I don't know why *)
 let rec init_pawn_position (tiles : tile list ) acc = 
   match tiles with 
     | [] -> acc
     | h :: t -> match Tile.get_coordinates h with 
-                | (x,y) when y = 1 -> (modify h x y true (set_piece Piece.Pawn White)):: acc 
-                | (x,y) when y = 6 -> (modify h x y true (set_piece Piece.Pawn Black)) :: acc 
-                | _ -> init_pawn_position t (h:: acc) 
+                | (x,y) when y = 1 -> init_pawn_position t ((modify h x y true (set_piece Piece.Pawn White)):: acc)
+                | (x,y) when y = 6 -> init_pawn_position t ((modify h x y true (set_piece Piece.Pawn Black)):: acc)
+                | _ -> init_pawn_position t (h:: acc)
 
 
 let get_tile_list (board: t) = 
   board.tile_list
 
 let init_positioned_tiles = xy_generate (Tile.empty_tile_list 64 []) [] 0 0
-let init_tiles =  init_pawn_position init_positioned_tiles []
+let init_tiles =  init_pawn_position (init_positioned_tiles) [] 
 
 let init (name: string) = {
   tile_list = init_tiles

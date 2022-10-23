@@ -37,7 +37,7 @@ let draw_king size pos =
 
 let draw_queen size pos = 
   match pos with 
-  | (x,y) -> Graphics.fill_poly [|(x+size/3,y);(x+2*size/3,y);(x,y+size/2);(x+size/2,y+size);(x+size,y+size/2)|]
+  | (x,y) -> Graphics.fill_poly [|(size*x+size/3,y);(size*x+2*size/3,y);(size*x,y+size/2);(size*x+size/2,size*y+size);(size*x+size,size*y+size/2)|]
 
 
 let draw (piece: Piece.piece) size pos  = 
@@ -48,7 +48,7 @@ let draw (piece: Piece.piece) size pos  =
     |Bishop -> draw_bishop size pos
     |Knight -> draw_knight size pos
     |Rook -> draw_rook size pos
-    
+
 
 
 
