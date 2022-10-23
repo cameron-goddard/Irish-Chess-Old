@@ -36,3 +36,5 @@ let empty_piece = {
 }
 
 let set_piece (piece:piece_type) (color_of_piece: color) : piece = {piece_type = piece; color = color_of_piece}
+
+let get_piece_type (piece: piece) = piece.piece_type

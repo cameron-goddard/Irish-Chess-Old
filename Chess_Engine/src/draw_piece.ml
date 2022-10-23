@@ -1,5 +1,5 @@
 open Graphics
-
+open Piece
 let graph_pawn clr = Graphics.set_color clr; Graphics.fill_poly [|(50,100);(100,100);(75,150)|]
 let graph_pawn clr = Graphics.set_color clr; Graphics.fill_poly [|(100,100);(150,100);(125,150)|]
 
@@ -38,6 +38,17 @@ let draw_king size pos =
 let draw_queen size pos = 
   match pos with 
   | (x,y) -> Graphics.fill_poly [|(x+size/3,y);(x+2*size/3,y);(x,y+size/2);(x+size/2,y+size);(x+size,y+size/2)|]
+
+
+let draw (piece: Piece.piece) size pos  = 
+  match get_piece_type piece with 
+    |Pawn -> ()
+    |Queen -> draw_queen size pos
+    |King -> draw_king size pos
+    |Bishop -> draw_bishop size pos
+    |Knight -> draw_knight size pos
+    |Rook -> draw_rook size pos
+    
 
 
 

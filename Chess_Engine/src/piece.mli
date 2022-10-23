@@ -28,3 +28,4 @@ type piece
 
 val empty_piece : piece
 val set_piece : piece_type -> color -> piece
+val get_piece_type : piece -> piece_type 
