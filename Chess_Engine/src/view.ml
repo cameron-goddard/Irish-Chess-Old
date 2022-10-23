@@ -32,7 +32,7 @@ let rec draw_piece (tiles : tile list)  =
     | h::t -> 
     if Tile.has_piece h then 
       let _ = print_string "lsdjhflskdjhf" in
-      let _ =  fill_rect 0 0 50 50 in
+      let _ = colored_tile Graphics.white ((get_x h)*50 + 5) ((get_y h)*50 + 5) 40 in 
       draw_piece t 
     else 
       let _ = colored_tile Graphics.white ((get_x h)*50 + 5) ((get_y h)*50 + 5) 40 in
