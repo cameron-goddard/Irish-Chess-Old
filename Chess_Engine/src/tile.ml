@@ -25,7 +25,7 @@ let rec empty_tile_list (size : int) (acc : tile list) =
   else empty_tile_list size (empty_tile :: acc)
 
 let has_piece (tile : tile) : bool = tile.has_piece
-
+let get_piece (tile : tile) : piece = tile.piece
 
 let get_coordinates (tile:tile) : (int * int) = (tile.x,tile.y)
 let get_x (tile:tile ) : int = tile.x

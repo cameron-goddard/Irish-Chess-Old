@@ -1,7 +1,7 @@
 open Graphics
 open Tile
 open Board
-
+open Piece
 
 let print_tile_coordinates tile = 
   print_int (Tile.get_x tile); print_int (Tile.get_y tile)
@@ -35,9 +35,12 @@ let rec draw_piece (tiles : tile list)  =
     | h::t -> 
     if Tile.has_piece h then 
       (* let _ = print_tile_coordinates h in *)
-      
-      let _ = colored_tile Graphics.white ((get_x h + 1)*50 + 5) ((get_y h + 1)*50 + 5) 40 in 
-      draw_piece t 
+      if Piece.get_piece_color (Tile.get_piece h) = White then 
+        let _ = colored_tile Graphics.white ((get_x h + 1)*50 + 5) ((get_y h + 1)*50 + 5) 40 in 
+        draw_piece t 
+      else 
+         let _ = colored_tile Graphics.magenta ((get_x h + 1)*50 + 5) ((get_y h + 1)*50 + 5) 40 in 
+        draw_piece t 
     else 
       (* let _ = print_tile_coordinates h in *)
       (* let _ = colored_tile Graphics.white ((get_x h + 1)*50 + 5) ((get_y h + 1)*50 + 5) 40 in *)

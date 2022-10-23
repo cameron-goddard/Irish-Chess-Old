@@ -10,3 +10,6 @@ val get_coordinates : tile -> (int * int)
 val has_piece : tile -> bool
 val get_x : tile -> int
 val get_y : tile -> int 
+
+val get_piece : tile -> piece 
+
