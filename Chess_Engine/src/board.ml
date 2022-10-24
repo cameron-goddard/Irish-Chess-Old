@@ -29,6 +29,8 @@ let rec init_pawn_position (tiles : tile list ) acc =
     | h :: t -> match Tile.get_coordinates h with 
                 | (x,y) when y = 1 -> init_pawn_position t ((modify h x y true (set_piece Piece.Pawn White)):: acc)
                 | (x,y) when y = 6 -> init_pawn_position t ((modify h x y true (set_piece Piece.Pawn Black)):: acc)
+                | (x,y) when y = 7 && (x = 0 || x = 7) -> init_pawn_position t ((modify h x y true (set_piece Piece.Rook Black)):: acc)
+                | (x,y) when y = 0 && (x = 0 || x = 7) -> init_pawn_position t ((modify h x y true (set_piece Piece.Rook White)):: acc)
                 | _ -> init_pawn_position t (h:: acc)
 
 
