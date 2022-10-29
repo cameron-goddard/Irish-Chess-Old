@@ -1,6 +1,6 @@
 (lang dune 3.4)
 
-(name Chess_Engine)
+(name Irish_Chess)
 
 (generate_opam_files true)
 
@@ -16,7 +16,7 @@
 (documentation https://url/to/documentation)
 
 (package
- (name Chess_Engine)
+ (name Irish_Chess)
  (synopsis "A short synopsis")
  (description "A longer description")
  (depends ocaml dune)
