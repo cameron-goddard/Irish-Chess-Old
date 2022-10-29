@@ -1,4 +1,4 @@
 (executable
  (public_name Chess)
  (name main)
- (libraries Chess_Engine))
+ (libraries Irish_Chess))

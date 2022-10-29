@@ -1,4 +1,4 @@
 (library
  (name chess)
- (public_name Chess_Engine)
+ (public_name Irish_Chess)
  (libraries graphics yojson ANSITerminal))
