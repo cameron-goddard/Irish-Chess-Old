@@ -1,3 +1,4 @@
+.PHONY: test
 
 build:
 	dune build
@@ -10,3 +11,11 @@ test:
 	
 run:
 	OCAMLRUNPARAM=b dune exec bin/main.exe
+
+zip:
+	rm -rf chess.zip
+	zip -r chess.zip . -x@exclude.lst
+
+clean:
+	dune clean
+	rm -f chess.zip
