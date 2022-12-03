@@ -1,0 +1,87 @@
+{
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "gui": {
+            "type": "string"
+        },
+        "colors": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "light_init": {
+            "type": "object",
+            "properties": {
+                "king": {
+                    "type": "string"
+                },
+                "queen": {
+                    "type": "string"
+                },
+                "bishops": {
+                    "type": "array",
+                    "items" : {
+                        "type": "string"
+                    }
+                },
+                "knights": {
+                    "type": "array",
+                    "items" : {
+                        "type": "string"
+                    }
+                },
+                "rooks": {
+                    "type": "array",
+                    "items" : {
+                        "type": "string"
+                    }
+                },
+                "pawns": {
+                    "type": "array",
+                    "items" : {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "dark_init": {
+            "type": "object",
+            "properties": {
+                "king": {
+                    "type": "string"
+                },
+                "queen": {
+                    "type": "string"
+                },
+                "bishops": {
+                    "type": "array",
+                    "items" : {
+                        "type": "string"
+                    }
+                },
+                "knights": {
+                    "type": "array",
+                    "items" : {
+                        "type": "string"
+                    }
+                },
+                "rooks": {
+                    "type": "array",
+                    "items" : {
+                        "type": "string"
+                    }
+                },
+                "pawns": {
+                    "type": "array",
+                    "items" : {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

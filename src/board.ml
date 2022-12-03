@@ -1,45 +1,16 @@
 open Piece
-open Tile
 
-type t = {
-  tile_list: Tile.tile list
-}
+module Board = struct
+  type t = piece list
 
-let empty_tile_board_list  : t =  {tile_list = Tile.empty_tile_list 8 []}
+  let update t (xi, yi) (xf, yf) = t
 
+  let rec piece_at (x, y) t =
+    match t with
+    | [] -> None
+    | p :: t -> if piece_loc p = (x, y) then Some p else piece_at (x, y) t
 
-let rec xy_generate (tiles : tile list) (acc : tile list) (x_inc : int) (y_inc : int) = 
-  match tiles with 
-  | [] -> acc 
-  | h::t -> 
-    if x_inc < 7 then 
-         xy_generate t ((modify h x_inc  y_inc false Piece.empty_piece) :: acc) (x_inc + 1) (y_inc)
-    else 
-      if y_inc < 8 then xy_generate  t ((modify h x_inc y_inc false Piece.empty_piece) :: acc) (0) (y_inc+1)
-      else acc
-  
+  let graphics_rep t = [ (0, 0) ]
 
-
-(* This function is losing information right now, I don't know why *)
-let rec init_pawn_position (tiles : tile list ) acc = 
-  match tiles with 
-    | [] -> acc
-    | h :: t -> match Tile.get_coordinates h with 
-      | (x,y) when y = 1 -> init_pawn_position t ((modify h x y true (set_piece Piece.Pawn White)):: acc)
-      | (x,y) when y = 6 -> init_pawn_position t ((modify h x y true (set_piece Piece.Pawn Black)):: acc)
-      | (x,y) when y = 7 && (x = 0 || x = 7) -> init_pawn_position t ((modify h x y true (set_piece Piece.Rook Black)):: acc)
-      | (x,y) when y = 0 && (x = 0 || x = 7) -> init_pawn_position t ((modify h x y true (set_piece Piece.Rook White)):: acc)
-      | _ -> init_pawn_position t (h:: acc)
-
-
-let get_tile_list (board: t) = 
-  board.tile_list
-
-let init_positioned_tiles = xy_generate (Tile.empty_tile_list 64 []) [] 0 0
-let init_tiles =  init_pawn_position (init_positioned_tiles) [] 
-
-let init (name: string) = {
-  tile_list = init_tiles
-}
-
-
+  exception InvalidMove of string
+end

@@ -10,7 +10,7 @@ test:
 	OCAMLRUNPARAM=b dune exec test/main.exe
 	
 run:
-	OCAMLRUNPARAM=b dune exec bin/main.exe
+	OCAMLRUNPARAM=b dune exec bin/main.exe default.json
 
 zip:
 	rm -rf chess.zip
