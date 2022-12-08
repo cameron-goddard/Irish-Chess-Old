@@ -217,7 +217,7 @@ module Board = struct
     if
       List.length
         (check_pieces t
-           (create_piece Pawn (rev_color (get_piece_color piece)) xf yf)
+           (create Pawn (rev_color (get_piece_color piece)) xf yf)
            [])
       <> 0
     then true
