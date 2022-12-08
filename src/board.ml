@@ -11,7 +11,7 @@ module Board = struct
     | p :: t -> if piece_loc p = (x, y) then Some p else piece_at (x, y) t
 
   let move_to t start (xf, yf) =
-    create_piece (get_piece_type start) (get_piece_color start) xf yf
+    create (get_piece_type start) (get_piece_color start) xf yf
     :: List.filter (fun x -> x <> start) t
 
   let capture t start (xf, yf) =

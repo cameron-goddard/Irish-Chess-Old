@@ -1,72 +1,42 @@
 open Graphics
 open Board
 open Piece
+open Util
 
-(* let print_tile_coordinates tile = print_int (Tile.get_x tile); print_int
-   (Tile.get_y tile)
+let get_unicode_char w = function
+  | King -> if w then "♔" else "♚"
+  | Queen -> if w then "♕" else "♛"
+  | Bishop -> if w then "♗" else "♝"
+  | Knight -> if w then "♘" else "♞"
+  | Rook -> if w then "♖" else "♜"
+  | Pawn -> if w then "♙" else "♟︎"
 
-   let rec print_tile_list (tiles : tile list) = match tiles with | [] ->
-   print_newline | h :: t -> print_tile_coordinates h; print_tile_list t *)
+let rec board_has_piece_at x y b =
+  match b with
+  | [] -> false
+  | { piece_type = pt; color = c; x = px; y = py } :: t ->
+      if px = x && py = y then true else board_has_piece_at x y t
 
-let rec make_positions_x num_pos lst x y inc =
-  if List.length lst = num_pos then lst
-  else make_positions_x num_pos ((x + inc, y) :: lst) (x + inc) y inc
+let print_board b =
+  let rec loop_board b x y count =
+    let x' = (x + 1) mod 8 in
+    let y' = if x = 7 then y - 1 else y in
+    if count = 64 then "\n"
+    else
+      let line_num =
+        if x' = 0 then "\n  " ^ string_of_int (y' + 1) ^ " " else ""
+      in
+      if board_has_piece_at x' y' b then
+        match Board.piece_at (x', y') b with
+        | None -> failwith "no"
+        | Some { piece_type = pt; color = c; x = px; y = py } ->
+            line_num
+            ^ get_unicode_char (c <> White) pt
+            ^ " "
+            ^ loop_board b x' y' (count + 1)
+      else line_num ^ "· " ^ loop_board b x' y' (count + 1)
+  in
+  loop_board b (-1) 7 0 ^ "    a b c d e f g h\n"
 
-let rec make_positions_y num_pos lst x y inc =
-  if List.length lst = num_pos then lst
-  else make_positions_y num_pos ((x, y + inc) :: lst) x (y + inc) inc
-
-let rec make_combined_positions pos x_lst inc acc =
-  match x_lst with
-  | [] -> acc
-  | (x, y) :: t ->
-      acc
-      @ make_positions_y pos [] x y inc
-      @ make_combined_positions pos t inc acc
-
-let colored_tile clr left_x left_y size =
-  Graphics.set_color clr;
-  Graphics.fill_rect left_x left_y size size
-
-(* let rec draw_piece (tiles : tile list) = match tiles with | [] -> let _ =
-   "empty" in [] | h :: t -> if Tile.has_piece h then (* let _ =
-   print_tile_coordinates h in *) if Piece.get_piece_color (Tile.get_piece h) =
-   White then let _ = colored_tile Graphics.white (((get_x h + 1) * 50) + 5)
-   (((get_y h + 1) * 50) + 5) 40 in draw_piece t else let _ = colored_tile
-   Graphics.magenta (((get_x h + 1) * 50) + 5) (((get_y h + 1) * 50) + 5) 40 in
-   draw_piece t else (* let _ = print_tile_coordinates h in *) (* let _ =
-   colored_tile Graphics.white ((get_x h + 1)*50 + 5) ((get_y h + 1)*50 + 5) 40
-   in *) draw_piece t *)
-
-(*if Tile.has_piece h then (colored_tile Graphics.white ((get_x h)*size) ((get_y
-  h)*size) size); (draw_piece t size) else draw_piece t size*)
-
-let size = 50
-
-(*List of x coords*)
-let x_lst = make_positions_x 8 [] 0 0 size
-
-(*List of x and y coords*)
-let xy_lst = make_combined_positions 8 x_lst size []
-
-let init =
-  Graphics.open_graph "";
-  set_window_title "Irish Chess";
-  ()
-
-let rec draw_helper xy_lst =
-  match xy_lst with
-  | [] -> []
-  | (x, y) :: t when Int.abs (x - y) mod 20 = 0 ->
-      colored_tile Graphics.black x y size;
-      draw_helper t
-  | (x, y) :: t ->
-      colored_tile Graphics.cyan x y size;
-      draw_helper t
-
-let draw_board board =
-  draw_helper xy_lst;
-
-  (* print_tile_list (Board.get_tile_list (Board.init "woah")); draw_piece
-     (Board.get_tile_list (Board.init "woah")) ; *)
-  ()
+let draw_board board = ()
+let init = ()
