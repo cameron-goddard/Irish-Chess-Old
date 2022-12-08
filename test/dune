@@ -1,2 +1,3 @@
-(test
- (name Irish_Chess))
+(executable
+ (name main)
+ (libraries Irish_Chess ounit2))

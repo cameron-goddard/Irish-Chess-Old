@@ -4,6 +4,7 @@ module Board = struct
   type t = piece list
 
   exception InvalidMove of string
+  exception Checkmate of string
 
   let rec piece_at (x, y) t =
     match t with
@@ -19,6 +20,11 @@ module Board = struct
   let move_to t start (xf, yf) =
     create_piece (get_piece_type start) (get_piece_color start) xf yf
     :: List.filter (fun x -> x <> start) t
+
+  let rev_color color =
+    match color with
+    | White -> Black
+    | Black -> White
 
   (** [find_king t color] returns the king with [color] in [t] *)
   let find_king t color =
@@ -52,7 +58,7 @@ module Board = struct
     else
       let path = (xf - xi, yf - yi) in
       match path with
-      | 0, 0 -> false
+      | 1, 0 | 0, 1 | 1, 1 | 0, -1 | -1, 0 | 1, -1 | -1, 1 | -1, -1 -> false
       | x, 0 ->
           if x > 0 then piece_on_path t (xi, yi) (xf - 1, yf)
           else piece_on_path t (xi, yi) (xf + 1, yf)
@@ -71,7 +77,7 @@ module Board = struct
   (** [knight_valid_move t (xi, yi) (xf, yf)] checks if [(xi, yi)] to [(xf, yf)]
       is of a L shape *)
   let kinght_valid_move (xi, yi) (xf, yf) =
-    match (Int.abs xf - xi, Int.abs yf - yi) with
+    match (Int.abs (xf - xi), Int.abs (yf - yi)) with
     | 2, 1 -> true
     | 1, 2 -> true
     | _ -> false
@@ -140,13 +146,6 @@ module Board = struct
       [start] at position [(xi, yi)] is able to move to position [(xf, yf)].
       Raises [InvalidMove] if move cannot be done *)
   let rec valid_move start t (xi, yi) (xf, yf) =
-    (let final_piece = piece_at (xf, yf) t in
-     match final_piece with
-     | Some piece ->
-         if get_piece_color piece = get_piece_color start then
-           raise (InvalidMove "Piece of same team")
-         else ()
-     | None -> ());
     match get_piece_type start with
     | Pawn ->
         if
@@ -159,6 +158,8 @@ module Board = struct
           && pawn_y start (xi, yi) (xf, yf)
           && piece_at (xf, yf) t <> None
         then check_status (capture t start (xf, yf)) start
+        else if Int.abs (yf - yi) = 2 then
+          check_status (special_move start t (xi, yi) (xf, yf)) start
         else raise (InvalidMove "Invalid Move")
     | Knight ->
         if kinght_valid_move (xi, yi) (xf, yf) then
@@ -179,17 +180,18 @@ module Board = struct
 
   (** [check_prev (h :: lst) start (xf, yf)] determines if [(xf, yf)] is a valid
       king move by avoiding check *)
-  and check_prev (h :: lst) start (xf, yf) =
-    if h :: lst = [] then true
-    else
-      match get_piece_color h <> get_piece_color start with
-      | true -> begin
-          try
-            ignore (valid_move h (h :: lst) (piece_loc h) (xf, yf));
-            false
-          with _ -> check_prev lst start (xf, yf)
-        end
-      | false -> check_prev lst start (xf, yf)
+  and check_prev t start (xf, yf) =
+    match t with
+    | [] -> true
+    | h :: lst -> (
+        match get_piece_color h <> get_piece_color start with
+        | true -> begin
+            try
+              ignore (valid_move h (h :: lst) (piece_loc h) (xf, yf));
+              false
+            with _ -> check_prev lst start (xf, yf)
+          end
+        | false -> check_prev lst start (xf, yf))
 
   (** [check_stats new_t start] determines if the updated t [new_t] is valid by
       checking if own king is in check *)
@@ -210,6 +212,33 @@ module Board = struct
           ignore (valid_move h t (piece_loc h) (piece_loc king));
           h :: acc
         with _ -> check_pieces lst king acc)
+
+  and block_path t (xi, yi) (xf, yf) piece =
+    if
+      List.length
+        (check_pieces t
+           (create_piece Pawn (rev_color (get_piece_color piece)) xf yf)
+           [])
+      <> 0
+    then true
+    else
+      let path = (xf - xi, yf - yi) in
+      match path with
+      | 0, 0 -> false
+      | x, 0 ->
+          if x > 0 then block_path t (xi, yi) (xf - 1, yf) piece
+          else block_path t (xi, yi) (xf + 1, yf) piece
+      | 0, y ->
+          if y > 0 then block_path t (xi, yi) (xf, yf - 1) piece
+          else block_path t (xi, yi) (xf, yf + 1) piece
+      | x, y ->
+          if Int.abs x == Int.abs y then
+            match (x > 0, y > 0) with
+            | true, true -> block_path t (xi, yi) (xf - 1, yf - 1) piece
+            | false, false -> block_path t (xi, yi) (xf + 1, yf + 1) piece
+            | true, false -> block_path t (xi, yi) (xf - 1, yf + 1) piece
+            | false, true -> block_path t (xi, yi) (xf + 1, yf - 1) piece
+          else raise (InvalidMove "Invalid path ")
 
   (** [checkmate t start] checks whether or not the opposing king will be in
       checkmate after move *)
@@ -232,8 +261,16 @@ module Board = struct
           || check_prev t king_op (legal_coord (x, y) (x - 1, y + 1))
           || check_prev t king_op (legal_coord (x, y) (x + 1, y - 1))
         then false
-        else if List.length (check_pieces t king_op []) = 1 then false
-        else failwith "Fail with checkmate"
+        else
+          let lst_opps = check_pieces t king_op [] in
+          if List.length lst_opps = 1 then
+            match lst_opps with
+            | [ h ] ->
+                if List.length (check_pieces t h []) <> 0 then
+                  block_path t (piece_loc king_op) (piece_loc h) h
+                else true
+            | _ -> failwith "Impossible Checkmate"
+          else true
 
   let update t (xi, yi) (xf, yf) =
     let start_opt = piece_at (xi, yi) t in
@@ -242,8 +279,13 @@ module Board = struct
     | Some start, Some final ->
         if get_piece_color start = get_piece_color final then
           raise (InvalidMove "Piece of same color on tile")
+        else if checkmate (valid_move start t (xi, yi) (xf, yf)) start then
+          raise (Checkmate "Checkmate")
         else valid_move start t (xi, yi) (xf, yf)
-    | Some start, _ -> valid_move start t (xi, yi) (xf, yf)
+    | Some start, _ ->
+        if checkmate (valid_move start t (xi, yi) (xf, yf)) start then
+          raise (Checkmate "Checkmate")
+        else valid_move start t (xi, yi) (xf, yf)
     | _ -> failwith "Impossible to start piece"
 
   let graphics_rep t = [ (0, 0) ]
