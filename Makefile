@@ -18,6 +18,13 @@ cli:
 gui: 
 	OCAMLRUNPARAM=b dune exec bin/main.exe default.json
 
+bisect: bisect-clean
+	-dune exec --instrument-with bisect_ppx --force test/main.exe
+	bisect-ppx-report html
+
+bisect-clean:
+	rm -rf _coverage bisect*.coverage
+
 zip:
 	rm -rf chess.zip
 	zip -r chess.zip . -x@exclude.lst

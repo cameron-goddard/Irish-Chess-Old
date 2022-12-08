@@ -1,4 +1,6 @@
 (library
  (name chess)
  (public_name Irish_Chess)
- (libraries graphics yojson ANSITerminal))
+ (libraries graphics yojson ANSITerminal)
+ (instrumentation
+  (backend bisect_ppx)))
