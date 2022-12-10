@@ -131,7 +131,6 @@ let rec patterned_board board xy_lst =
   match xy_lst with
   | [] -> ()
   | (x, y) :: t when board_has_piece_at (x - 1) (y - 1) board -> (
-      print_endline "hi";
       match Board.piece_at (x - 1, y - 1) board with
       | None -> print_endline "hi"
       | Some p -> begin
@@ -168,7 +167,6 @@ let rec print_xy_list lst =
 
 let draw_board board =
   draw_helper xy_lst;
-  patterned_board board xy_lst;
-  print_xy_list xy_lst
+  patterned_board board xy_lst
 
 let init = Graphics.open_graph ""
