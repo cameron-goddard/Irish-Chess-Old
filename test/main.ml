@@ -21,8 +21,12 @@ let own = [ pawn_own; pawn_own2 ]
 let king_whc = create King White 0 0
 let queen = create Queen Black 4 6
 let rook = create Rook Black 1 5
-let king_blc = create King Black 0 7
+let rook_castle = create Rook Black 0 4
+let king_blc = create King Black 4 7
+let king_whc_ca = create King White 7 0
+let king_blc_ca = create King Black 0 7
 let checkmate = [ king_whc; queen; rook; king_blc ]
+let castle = [ king_whc_ca; queen; rook_castle; king_blc_ca ]
 
 let piece_to_string p =
   match Piece.piece_loc p with
@@ -48,6 +52,8 @@ let tests =
            new_t;
          test_update "cant move onto own team" own (0, 0) (0, 1) new_t;
          test_update "checkmate yessir" checkmate (4, 6) (0, 6) new_t;
+         test_update "castle" castle (0, 7) (4, 7)
+           [ create King Black 2 7; create King Black 1 7; king_whc_ca; queen ];
        ]
 
 let _ = run_test_tt_main tests

@@ -149,28 +149,28 @@ module Board = struct
         let color = if get_piece_color start = White then 0 else 7 in
         if
           List.mem
-            (create_piece King (get_piece_color start) 4 color)
+            (create King (get_piece_color start) 4 color)
             (List.filter
                (fun x -> get_piece_color x = get_piece_color start)
                moves)
           || List.mem
-               (create_piece Rook (get_piece_color start) left color)
+               (create Rook (get_piece_color start) left color)
                (List.filter
                   (fun x -> get_piece_color x = get_piece_color start)
                   moves)
         then raise (InvalidMove "Cannot castle")
         else if not (piece_on_path t (xi, yi) (xf, yf)) then
-          create_piece Rook (get_piece_color start)
+          create Rook (get_piece_color start)
             (if xf < 4 || (xf == 4 && xi < 4) then 2 else 5)
             color
-          :: create_piece King (get_piece_color start)
+          :: create King (get_piece_color start)
                (if xf < 4 || (xf == 4 && xi < 4) then 1 else 6)
                color
           :: List.filter
                (fun x ->
                  not
-                   (create_piece Rook (get_piece_color start) left color = x
-                   && create_piece King (get_piece_color start) 4 color = x))
+                   (create Rook (get_piece_color start) left color = x
+                   && create King (get_piece_color start) 4 color = x))
                t
         else raise (InvalidMove "Pieces on path")
         (* implement castle *)
@@ -210,6 +210,10 @@ module Board = struct
     | King ->
         if check_prev t start (xf, yf) && king_valid_move (xi, yi) (xf, yf) then
           capture t start (xf, yf)
+          (* else if (yi = if get_piece_color start = White then 0 else 7) && xi
+             = 4 && yf = yi && get_piece_type begin match piece_at (xf, yf) t
+             with | Some x -> x | None -> raise (InvalidMove "Incorrect Castle")
+             end = Rook then special_move start t (xi, yi) (xf, yf) *)
         else raise (InvalidMove "Invalid move for king")
 
   (** [check_prev (h :: lst) start (xf, yf)] determines if [(xf, yf)] is a valid
@@ -317,8 +321,22 @@ module Board = struct
     let final_opt = piece_at (xf, yf) t in
     match (start_opt, final_opt) with
     | Some start, Some final ->
-        if get_piece_color start = get_piece_color final then
-          raise (InvalidMove "Piece of same color on tile")
+        if
+          get_piece_color start = get_piece_color final
+          && (get_piece_type start <> King
+              && xi = 4
+              && (xf = 0 || xf = 7)
+              && yf = yi
+              && (yf = 0 || yf = 7)
+             || get_piece_type start <> Rook
+                && (xi = 7 || xi = 0)
+                && xf = 4 && yi = yf
+                && (yi = 0 || yf = 7))
+        then
+          let x = special_move start t (xi, yi) (xf, yf) in
+          if checkmate (valid_move start x (xi, yi) (xf, yf)) start then
+            raise (Checkmate "Checkmate")
+          else raise (InvalidMove "Piece of same color on tile")
         else if checkmate (valid_move start t (xi, yi) (xf, yf)) start then
           raise (Checkmate "Checkmate")
         else
