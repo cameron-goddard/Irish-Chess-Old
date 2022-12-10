@@ -38,5 +38,137 @@ let print_board b =
   in
   loop_board b (-1) 7 0 ^ "    a b c d e f g h\n"
 
-let draw_board board = ()
-let init = ()
+let colored_tile clr left_x left_y size =
+  Graphics.set_color clr;
+  Graphics.fill_rect left_x left_y size size
+
+let draw_rook size pos =
+  match pos with
+  | x, y ->
+      Graphics.fill_rect
+        (x + (size / 5))
+        (y + (size / 20))
+        (3 * size / 5)
+        (size * 9 / 10)
+
+let draw_knight size pos =
+  match pos with
+  | x, y ->
+      Graphics.fill_ellipse
+        (x + (size / 2))
+        (y + (size / 2))
+        (size / 4) (size / 2)
+
+let draw_bishop size pos =
+  match pos with
+  | x, y ->
+      Graphics.fill_poly
+        [|
+          (x + (size / 2), y);
+          (x, y + (size / 2));
+          (x + (size / 2), y + size);
+          (x + size, y + (size / 2));
+        |]
+
+let draw_king size pos =
+  match pos with
+  | x, y -> Graphics.fill_circle (x + (size / 2)) (y + (size / 2)) (size / 2)
+
+(* fix queen drawing *)
+let draw_queen size pos =
+  match pos with
+  | x, y ->
+      Graphics.fill_poly
+        [|
+          (x + (size / 3), y);
+          (x + (2 * size / 3), y);
+          (x, y + (size / 2));
+          (x + (size / 2), y + size);
+          (x + size, y + (size / 2));
+        |]
+
+let draw_pawn size pos =
+  match pos with
+  | x, y ->
+      Graphics.fill_poly [| (x, y); (x + size, y); (x + (size / 2), size + y) |]
+
+let draw_pt (piece : Piece.piece) size pos =
+  match get_piece_type piece with
+  | Pawn -> draw_pawn size pos
+  | Queen -> draw_queen size pos
+  | King -> draw_king size pos
+  | Bishop -> draw_bishop size pos
+  | Knight -> draw_knight size pos
+  | Rook -> draw_rook size pos
+
+let rec board_piece board =
+  match board with
+  | [] -> (0, 0)
+  | h :: t ->
+      piece_loc h;
+      board_piece t
+
+let rec make_positions_x num_pos lst x y inc =
+  if List.length lst = num_pos then lst
+  else make_positions_x num_pos ((x + inc, y) :: lst) (x + inc) y inc
+
+let rec make_positions_y num_pos lst x y inc =
+  if List.length lst = num_pos then lst
+  else make_positions_y num_pos ((x, y + inc) :: lst) x (y + inc) inc
+
+let rec make_combined_positions pos x_lst inc acc =
+  match x_lst with
+  | [] -> acc
+  | (x, y) :: t ->
+      acc
+      @ make_positions_y pos [] x y inc
+      @ make_combined_positions pos t inc acc
+
+let x_lst = make_positions_x 8 [] 0 0 1
+let xy_lst = make_combined_positions 8 x_lst 1 []
+
+let rec patterned_board board xy_lst =
+  match xy_lst with
+  | [] -> ()
+  | (x, y) :: t when board_has_piece_at (x - 1) (y - 1) board -> (
+      print_endline "hi";
+      match Board.piece_at (x - 1, y - 1) board with
+      | None -> print_endline "hi"
+      | Some p -> begin
+          match get_piece_color p with
+          | White ->
+              set_color Graphics.magenta;
+              draw_pt p 50 (x * 50, y * 50);
+              patterned_board board t
+          | Black ->
+              set_color Graphics.yellow;
+              draw_pt p 50 (x * 50, y * 50);
+              patterned_board board t
+        end)
+  | (x, y) :: t ->
+      (* colored_tile Graphics.magenta (x * 50) (y * 50) 50; *)
+      patterned_board board t
+
+let rec draw_helper xy_lst =
+  match xy_lst with
+  | [] -> []
+  | (x, y) :: t when Int.abs (x - y) * 50 mod 20 = 0 ->
+      colored_tile Graphics.black (x * 50) (y * 50) 50;
+      draw_helper t
+  | (x, y) :: t ->
+      colored_tile Graphics.cyan (x * 50) (y * 50) 50;
+      draw_helper t
+
+let rec print_xy_list lst =
+  match lst with
+  | [] -> ()
+  | (x, y) :: t ->
+      print_endline (string_of_int x ^ string_of_int y);
+      print_xy_list t
+
+let draw_board board =
+  draw_helper xy_lst;
+  patterned_board board xy_lst;
+  print_xy_list xy_lst
+
+let init = Graphics.open_graph ""
