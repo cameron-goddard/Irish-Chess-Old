@@ -4,24 +4,24 @@ open Piece
 open Board
 open Printf
 
-let pawn_wh = create_piece Pawn White 1 1
-let king_wh = create_piece King White 1 0
-let pawn_bl = create_piece Pawn Black 1 4
-let king_bl = create_piece King Black 1 5
-let knight_bl = create_piece Knight Black 2 4
-let pawn_bl2 = create_piece Pawn Black 3 4
+let pawn_wh = create Pawn White 1 1
+let king_wh = create King White 1 0
+let pawn_bl = create Pawn Black 1 4
+let king_bl = create King Black 1 5
+let knight_bl = create Knight Black 2 4
+let pawn_bl2 = create Pawn Black 3 4
 let t = [ pawn_wh; pawn_bl; pawn_bl2; knight_bl; king_wh; king_bl ]
-let pawn_wh2 = create_piece Pawn White 1 2
-let knight_bl2 = create_piece Knight Black 1 2
+let pawn_wh2 = create Pawn White 1 2
+let knight_bl2 = create Knight Black 1 2
 let new_t = [ pawn_wh2; pawn_bl; pawn_bl2; knight_bl; king_wh; king_bl ]
 let new_t_cap = [ knight_bl2; pawn_bl; pawn_bl2; king_wh; king_bl ]
-let pawn_own = create_piece Pawn Black 0 0
-let pawn_own2 = create_piece Pawn Black 0 1
+let pawn_own = create Pawn Black 0 0
+let pawn_own2 = create Pawn Black 0 1
 let own = [ pawn_own; pawn_own2 ]
-let king_whc = create_piece King White 0 0
-let queen = create_piece Queen Black 4 6
-let rook = create_piece Rook Black 1 5
-let king_blc = create_piece King Black 0 7
+let king_whc = create King White 0 0
+let queen = create Queen Black 4 6
+let rook = create Rook Black 1 5
+let king_blc = create King Black 0 7
 let checkmate = [ king_whc; queen; rook; king_blc ]
 
 let piece_to_string p =

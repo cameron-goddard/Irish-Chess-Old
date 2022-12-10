@@ -20,7 +20,7 @@ module Board = struct
 
   (** [move_to t start (xf, yf)] changes [start] location to that of [(xf, yf)] *)
   let move_to t start (xf, yf) =
-    create_piece (get_piece_type start) (get_piece_color start) xf yf
+    create (get_piece_type start) (get_piece_color start) xf yf
     :: List.filter (fun x -> x <> start) t
 
   (** [rev_color color] returns the opposite color of [color]*)
@@ -254,7 +254,7 @@ module Board = struct
     if
       List.length
         (check_pieces t
-           (create_piece Pawn (rev_color (get_piece_color piece)) xf yf)
+           (create Pawn (rev_color (get_piece_color piece)) xf yf)
            [])
       <> 0
     then true
