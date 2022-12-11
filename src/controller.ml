@@ -62,17 +62,21 @@ let rec game_step mode (b : Board.t) =
       print_endline "INVALID MOVE ... try again";
       game_step mode b)
   else if mode = "gui/no_text" then (
-    View.draw_board b;
-    let start_status = Graphics.wait_next_event [ Button_down ] in
-    let st =
-      ((start_status.mouse_x / 50) - 1, (start_status.mouse_y / 50) - 1)
-    in
-    let end_status = Graphics.wait_next_event [ Button_down ] in
-    let en = ((end_status.mouse_x / 50) - 1, (end_status.mouse_y / 50) - 1) in
-    process_move mode b st en;
-    print_endline
-      (string_of_int start_status.mouse_x ^ string_of_int start_status.mouse_y);
-    game_step mode b)
+    try
+      View.draw_board b;
+      let start_status = Graphics.wait_next_event [ Button_down ] in
+      let st =
+        ((start_status.mouse_x / 50) - 1, (start_status.mouse_y / 50) - 1)
+      in
+      let end_status = Graphics.wait_next_event [ Button_down ] in
+      let en = ((end_status.mouse_x / 50) - 1, (end_status.mouse_y / 50) - 1) in
+      process_move mode b st en;
+      print_endline
+        (string_of_int start_status.mouse_x ^ string_of_int start_status.mouse_y);
+      game_step mode b
+    with _ ->
+      print_endline "CLICK ON THE BOARD";
+      game_step mode b)
   else
     let event = Graphics.wait_next_event [ Key_pressed ] in
     if event.key == 'q' then exit 0
