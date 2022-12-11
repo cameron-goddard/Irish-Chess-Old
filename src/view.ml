@@ -165,8 +165,31 @@ let rec print_xy_list lst =
       print_endline (string_of_int x ^ string_of_int y);
       print_xy_list t
 
-let draw_board board =
-  draw_helper xy_lst;
-  patterned_board board xy_lst
+let rec write_letters lst size =
+  match lst with
+  | [] -> []
+  | (x, y) :: t when (size * y) - size = 0 ->
+      Graphics.moveto ((size * x) + (size / 2)) (y / 2);
+      Graphics.draw_char (Char.chr (64 + (size * x / size)));
+      write_letters t size
+  | (x, y) :: t -> write_letters t size
 
-let init = Graphics.open_graph ""
+let rec write_numbers lst size =
+  match lst with
+  | [] -> []
+  | (x, y) :: t when (size * x) - size = 0 ->
+      Graphics.moveto (size * x / 2) ((size * y) + (size / 2));
+      Graphics.draw_string (string_of_int (size * y / size));
+      write_numbers t size
+  | (x, y) :: t -> write_numbers t size
+
+let draw_board board =
+  write_numbers xy_lst 50;
+  write_letters xy_lst 50;
+  draw_helper xy_lst;
+  patterned_board board xy_lst;
+  ()
+
+let init =
+  Graphics.open_graph "";
+  set_window_title "IRISH CHESS"
