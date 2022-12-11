@@ -45,18 +45,22 @@ let rec game_step mode (b : Board.t) =
   else if mode = "gui" then (
     View.draw_board b;
     print_string "> ";
-    let input = parse (read_line ()) in
-    match input with
-    | Move (st, en) ->
-        (* ANSITerminal.erase Screen; *)
-        process_move mode b st en
-    | Castle dir -> raise (Failure "Unimplemented")
-    | Help -> raise (Failure "Unimplemented")
-    | Info ->
-        Printf.printf "pressed info\n";
-        game_step mode b
-    | Empty -> game_step mode b
-    | Quit -> exit 0)
+    try
+      let input = parse (read_line ()) in
+      match input with
+      | Move (st, en) ->
+          (* ANSITerminal.erase Screen; *)
+          process_move mode b st en
+      | Castle dir -> raise (Failure "Unimplemented")
+      | Help -> raise (Failure "Unimplemented")
+      | Info ->
+          Printf.printf "pressed info\n";
+          game_step mode b
+      | Empty -> game_step mode b
+      | Quit -> exit 0
+    with _ ->
+      print_endline "INVALID MOVE ... try again";
+      game_step mode b)
   else
     let event = Graphics.wait_next_event [ Key_pressed ] in
     if event.key == 'q' then exit 0
