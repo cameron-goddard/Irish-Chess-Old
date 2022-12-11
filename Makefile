@@ -16,7 +16,7 @@ cli:
 	OCAMLRUNPARAM=b dune exec bin/main.exe "cli" horde.json
 
 gui: 
-	OCAMLRUNPARAM=b dune exec bin/main.exe default.json
+	OCAMLRUNPARAM=b dune exec bin/main.exe "gui" default.json
 
 bisect: bisect-clean
 	-dune exec --instrument-with bisect_ppx --force test/main.exe

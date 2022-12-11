@@ -43,6 +43,21 @@ let rec game_step mode (b : Board.t) =
         game_step mode b
     | Empty -> game_step mode b
     | Quit -> exit 0)
+  else if mode = "gui" then (
+    View.draw_board b;
+    print_string "> ";
+    let input = parse (read_line ()) in
+    match input with
+    | Move (st, en) ->
+        (* ANSITerminal.erase Screen; *)
+        process_move mode b st en
+    | Castle dir -> raise (Failure "Unimplemented")
+    | Help -> raise (Failure "Unimplemented")
+    | Info ->
+        Printf.printf "pressed info\n";
+        game_step mode b
+    | Empty -> game_step mode b
+    | Quit -> exit 0)
   else
     let event = Graphics.wait_next_event [ Key_pressed ] in
     if event.key == 'q' then exit 0
