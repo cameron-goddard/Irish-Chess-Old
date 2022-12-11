@@ -2,8 +2,8 @@
     "name": "Default",
     "colors": ["000000", "ffffff"],
     "light_init": {
-        "king": "e1",
-        "queen": "d1",
+        "king": ["e1"],
+        "queen": ["d1"],
         "bishop": ["c1","f1"],
         "knight": ["b1","g1"],
         "rook": ["a1","h1"],

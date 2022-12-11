@@ -1,6 +1,7 @@
 type command =
   | Move of (int * int) * (int * int)
   | Castle of string
+  | Load of string
   | Empty
   | Help
   | Info

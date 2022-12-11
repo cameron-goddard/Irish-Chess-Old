@@ -1,5 +1,9 @@
 {
     "name": "Empty",
-    "colors": ["000000", "ffffff"]
-    
+    "colors": ["000000", "ffffff"],
+    "light_init": {
+        
+    },
+    "dark_init": {
+    }
 }

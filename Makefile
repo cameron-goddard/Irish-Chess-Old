@@ -13,7 +13,7 @@ run:
 	OCAMLRUNPARAM=b dune exec bin/main.exe default.json
 
 cli:
-	OCAMLRUNPARAM=b dune exec bin/main.exe "cli" default.json
+	OCAMLRUNPARAM=b dune exec bin/main.exe "cli" horde.json
 
 gui: 
 	OCAMLRUNPARAM=b dune exec bin/main.exe default.json

@@ -18,8 +18,8 @@ type color =
   | Dark
 
 type piece_container = {
-  king : piece;
-  queen : piece;
+  king : piece list;
+  queen : piece list;
   bishops : piece list;
   knights : piece list;
   rooks : piece list;
@@ -36,6 +36,7 @@ let rec game_step mode (b : Board.t) =
         (* ANSITerminal.erase Screen; *)
         process_move mode b st en
     | Castle dir -> raise (Failure "Unimplemented")
+    | Load file -> raise (Failure "Unimplemented")
     | Help -> raise (Failure "Unimplemented")
     | Info ->
         Printf.printf "pressed info\n";
@@ -86,14 +87,8 @@ let piece_list_of_json c pt j =
 
 let piece_container_of_json c j =
   {
-    king =
-      Piece.create King c
-        (fst (piece_location_of_json "king" j))
-        (snd (piece_location_of_json "king" j));
-    queen =
-      Piece.create Queen c
-        (fst (piece_location_of_json "queen" j))
-        (snd (piece_location_of_json "queen" j));
+    king = piece_list_of_json c King j;
+    queen = piece_list_of_json c Queen j;
     bishops = piece_list_of_json c Bishop j;
     knights = piece_list_of_json c Knight j;
     rooks = piece_list_of_json c Rook j;
@@ -103,7 +98,7 @@ let piece_container_of_json c j =
 let piece_list_of_container container =
   match container with
   | { king; queen; bishops; knights; rooks; pawns } ->
-      [ king ] @ [ queen ] @ bishops @ knights @ rooks @ pawns
+      king @ queen @ bishops @ knights @ rooks @ pawns
 
 let t_of_json j =
   {

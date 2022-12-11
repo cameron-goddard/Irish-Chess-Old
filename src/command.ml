@@ -3,6 +3,7 @@ open Util
 type command =
   | Move of (int * int) * (int * int)
   | Castle of string
+  | Load of string
   | Empty
   | Help
   | Info
@@ -22,6 +23,7 @@ let parse input =
           ( coords_of_notation (List.nth items_trimmed 1),
             coords_of_notation (List.nth items_trimmed 2) )
     | "castle" -> Castle ""
+    | "load" -> Load "placeholder"
     | "help" -> Help
     | "info" -> Info
     | "quit" -> Quit
