@@ -38,10 +38,15 @@ let print_board b =
   in
   loop_board b (-1) 7 0 ^ "    a b c d e f g h\n"
 
+(** [move_to t start (xf, yf)] changes [start] location to that of [(xf, yf)] *)
+
+(** [colored_tile clr left_x left_y size] draws a square of Graphics.color clr
+    starting in position [left_x, left_y] that is [size X size] *)
 let colored_tile clr left_x left_y size =
   Graphics.set_color clr;
   Graphics.fill_rect left_x left_y size size
 
+(** [draw_rook size pos] draws a rook of [size] at [pos] *)
 let draw_rook size pos =
   match pos with
   | x, y ->
@@ -51,6 +56,7 @@ let draw_rook size pos =
         (3 * size / 5)
         (size * 9 / 10)
 
+(** [draw_knight size pos] draws a knight of [size] at [pos] *)
 let draw_knight size pos =
   match pos with
   | x, y ->
@@ -58,6 +64,8 @@ let draw_knight size pos =
         (x + (size / 2))
         (y + (size / 2))
         (size / 4) (size / 2)
+
+(** [draw_bishop size pos] draws a bishop of [size] at [pos] *)
 
 let draw_bishop size pos =
   match pos with
@@ -70,11 +78,13 @@ let draw_bishop size pos =
           (x + size, y + (size / 2));
         |]
 
+(** [draw_king size pos] draws a king of [size] at [pos] *)
+
 let draw_king size pos =
   match pos with
   | x, y -> Graphics.fill_circle (x + (size / 2)) (y + (size / 2)) (size / 2)
 
-(* fix queen drawing *)
+(** [draw_queen size pos] draws a queen of [size] at [pos] *)
 let draw_queen size pos =
   match pos with
   | x, y ->
@@ -87,11 +97,15 @@ let draw_queen size pos =
           (x + size, y + (size / 2));
         |]
 
+(** [draw_pawn size pos] draws a pawn of [size] at [pos] *)
+
 let draw_pawn size pos =
   match pos with
   | x, y ->
       Graphics.fill_poly [| (x, y); (x + size, y); (x + (size / 2), size + y) |]
 
+(** [draw_pt piece size pos] draws a Piece of type [piece] with size [size] at
+    position [pos] *)
 let draw_pt (piece : Piece.piece) size pos =
   match get_piece_type piece with
   | Pawn -> draw_pawn size pos
@@ -101,20 +115,22 @@ let draw_pt (piece : Piece.piece) size pos =
   | Knight -> draw_knight size pos
   | Rook -> draw_rook size pos
 
-let rec board_piece board =
-  match board with
-  | [] -> (0, 0)
-  | h :: t ->
-      piece_loc h;
-      board_piece t
+(** [make_positions_x num_pos lst x y] generates a [lst] of [x] coordinates that
+    increase by [inc] *)
 
 let rec make_positions_x num_pos lst x y inc =
   if List.length lst = num_pos then lst
   else make_positions_x num_pos ((x + inc, y) :: lst) (x + inc) y inc
 
+(** [make_positions_y num_pos lst x y] generates a [lst] of [y] coordinates that
+    increase by [inc] *)
+
 let rec make_positions_y num_pos lst x y inc =
   if List.length lst = num_pos then lst
   else make_positions_y num_pos ((x, y + inc) :: lst) x (y + inc) inc
+
+(** [make_combined_positions pos x_lst inc acc] generates an [lst] of (x,y)
+    coordinates that are scaled by inc *)
 
 let rec make_combined_positions pos x_lst inc acc =
   match x_lst with
@@ -124,6 +140,7 @@ let rec make_combined_positions pos x_lst inc acc =
       @ make_positions_y pos [] x y inc
       @ make_combined_positions pos t inc acc
 
+(* The Scaled graphics position of the internal representation of *)
 let x_lst = make_positions_x 8 [] 0 0 1
 let xy_lst = make_combined_positions 8 x_lst 1 []
 
@@ -148,6 +165,7 @@ let rec patterned_board board xy_lst =
       (* colored_tile Graphics.magenta (x * 50) (y * 50) 50; *)
       patterned_board board t
 
+(* Takes combined position list and draws it *)
 let rec draw_helper xy_lst =
   match xy_lst with
   | [] -> []
@@ -158,6 +176,7 @@ let rec draw_helper xy_lst =
       colored_tile Graphics.cyan (x * 50) (y * 50) 50;
       draw_helper t
 
+(* Debugguing Helper Function - prints scaled Graphic Coordinates *)
 let rec print_xy_list lst =
   match lst with
   | [] -> ()
@@ -165,6 +184,7 @@ let rec print_xy_list lst =
       print_endline (string_of_int x ^ string_of_int y);
       print_xy_list t
 
+(* Writes Notation according to xy_list and size *)
 let rec write_letters lst size =
   match lst with
   | [] -> []
@@ -174,6 +194,7 @@ let rec write_letters lst size =
       write_letters t size
   | (x, y) :: t -> write_letters t size
 
+(* Writes Numerical Notation according to xy_list and size *)
 let rec write_numbers lst size =
   match lst with
   | [] -> []
@@ -182,6 +203,10 @@ let rec write_numbers lst size =
       Graphics.draw_string (string_of_int (size * y / size));
       write_numbers t size
   | (x, y) :: t -> write_numbers t size
+
+let mouse_to_graphics input =
+  match input with
+  | x, y -> ((x / 50) - 1, (y / 50) - 1)
 
 let draw_board board =
   write_numbers xy_lst 50;
