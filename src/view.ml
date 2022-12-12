@@ -97,13 +97,23 @@ let draw_knight size pos =
 let draw_bishop size pos =
   match pos with
   | x, y ->
+      Graphics.fill_rect
+        (x + (size / 5))
+        (y + (size / 20))
+        ((3 * size / 4) - (size / 8))
+        (size / 8);
       Graphics.fill_poly
         [|
-          (x + (size / 2), y);
-          (x, y + (size / 2));
-          (x + (size / 2), y + size);
-          (x + size, y + (size / 2));
-        |]
+          (x + (size / 2), y + (size / 6));
+          (x + (size / 3), y + (size / 2));
+          (x + (size / 2), y + size - (size / 8));
+          (x + size - (size / 3), y + (size / 2));
+        |];
+      Graphics.draw_circle (x + (size / 2)) (y + (11 * size / 14)) (size / 8)
+
+(* let draw_original_bishop size pos = match pos with | x, y ->
+   Graphics.fill_poly [| (x + (size / 2), y); (x, y + (size / 2)); (x + (size /
+   2), y + size); (x + size, y + (size / 2)); |] *)
 
 (** [draw_king size pos] draws a king of [size] at [pos] *)
 
