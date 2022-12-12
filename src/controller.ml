@@ -26,6 +26,8 @@ type piece_container = {
   pawns : piece list;
 }
 
+let get_board t : Board.t = t.board
+
 let rec game_step mode (b : Board.t) =
   if mode = "cli" then (
     print_endline (View.print_board b);
