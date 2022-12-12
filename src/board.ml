@@ -8,6 +8,11 @@ module Board = struct
 
   let moves : piece list = []
 
+  let check_draw t =
+    match t with
+    | x :: y :: e :: f :: g :: h :: _ -> if x = g && h = y then true else false
+    | _ -> false
+
   let rec piece_at (x, y) t =
     match t with
     | [] -> None
@@ -57,9 +62,9 @@ module Board = struct
       from [(xi, yi)] to [(xf, yf)]. Raises [InvalidMove] if the piece moves in
       a x and y direction but not diagonally *)
   let rec piece_on_path t (xi, yi) (xf, yf) =
-    if piece_at (xf, yf) t <> None then true
+    let path = (xf - xi, yf - yi) in
+    if piece_at (xf, yf) t <> None && xf - xi <> 0 && yf - yi <> 0 then true
     else
-      let path = (xf - xi, yf - yi) in
       match path with
       | 1, 0 | 0, 1 | 1, 1 | 0, -1 | -1, 0 | 1, -1 | -1, 1 | -1, -1 -> false
       | x, 0 ->
@@ -120,7 +125,7 @@ module Board = struct
   (** [king_valid_move (xi, yi) (xf, yf)] checks if [(xf, yf)] is a feasible
       distance a king can travel given [(xi, yi)] *)
   let king_valid_move (xi, yi) (xf, yf) =
-    match (Int.abs xf - xi, Int.abs yf - yi) with
+    match (Int.abs (xf - xi), Int.abs (yf - yi)) with
     | 1, 1 -> true
     | 1, 0 -> true
     | 0, 1 -> true
@@ -137,8 +142,8 @@ module Board = struct
           && ((get_piece_color start = Black && yi - yf = 2)
              || (get_piece_color start = White && yf - yi = 2))
           && piece_at (xf, yf) t = None
-          && ((get_piece_color start = Black && piece_at (xf, yf - 1) t = None)
-             || (get_piece_color start = White && piece_at (xf, yf + 1) t = None)
+          && ((get_piece_color start = Black && piece_at (xf, yf + 1) t = None)
+             || (get_piece_color start = White && piece_at (xf, yf - 1) t = None)
              )
           && ((get_piece_color start = Black && yi = 6)
              || (get_piece_color start = White && yi = 1))
@@ -194,7 +199,7 @@ module Board = struct
         then check_status (capture t start (xf, yf)) start
         else if Int.abs (yf - yi) = 2 then
           check_status (special_move start t (xi, yi) (xf, yf)) start
-        else raise (InvalidMove "Invalid Move")
+        else raise (InvalidMove "Invalid move for pawn")
     | Knight ->
         if kinght_valid_move (xi, yi) (xf, yf) then
           check_status (capture t start (xf, yf)) start
@@ -316,6 +321,85 @@ module Board = struct
   (** [add_to_moves piece] adds [piece] to list moves *)
   let add_to_moves piece = piece :: moves
 
+  let rec check_all_invalid_piece_moves start t (xi, yi) end_list =
+    match end_list with
+    | (xf, yf) :: f -> begin
+        try
+          ignore (valid_move start t (xi, yi) (xf, yf));
+          false
+        with _ -> check_all_invalid_piece_moves start t (xi, yi) f
+      end
+    | _ -> true
+
+  let list_straight (xi, yi) =
+    let temp = ref [] in
+    for x = 1 to 7 do
+      temp :=
+        legal_coord (xi, yi) (xi, yi + x)
+        :: legal_coord (xi, yi) (xi, yi - x)
+        :: legal_coord (xi, yi) (xi + x, yi)
+        :: legal_coord (xi, yi) (xi - x, yi)
+        :: !temp
+    done;
+    !temp
+
+  let list_diagonal (xi, yi) =
+    let temp = ref [] in
+    for x = 1 to 7 do
+      temp :=
+        legal_coord (xi, yi) (xi + x, yi + x)
+        :: legal_coord (xi, yi) (xi - x, yi - x)
+        :: legal_coord (xi, yi) (xi + x, yi - x)
+        :: legal_coord (xi, yi) (xi - x, yi + x)
+        :: !temp
+    done;
+    !temp
+
+  let check_all_piece_moves start t (xi, yi) =
+    match get_piece_type start with
+    | Pawn ->
+        check_all_invalid_piece_moves start t (xi, yi)
+          (if get_piece_color start = White then
+           [ (xi, yi + 1); (xi + 1, yi + 1); (xi - 1, yi + 1) ]
+          else [ (xi, yi - 1) ])
+    | Bishop ->
+        check_all_invalid_piece_moves start t (xi, yi) (list_diagonal (xi, yi))
+    | Rook ->
+        check_all_invalid_piece_moves start t (xi, yi) (list_straight (xi, yi))
+    | Queen ->
+        check_all_invalid_piece_moves start t (xi, yi)
+          (list_straight (xi, yi) @ list_diagonal (xi, yi))
+    | King ->
+        check_all_invalid_piece_moves start t (xi, yi)
+          [
+            legal_coord (xi, yi) (xi, yi + 1);
+            legal_coord (xi, yi) (xi + 1, yi);
+            legal_coord (xi, yi) (xi, yi - 1);
+            legal_coord (xi, yi) (xi - 1, yi);
+            legal_coord (xi, yi) (xi + 1, yi + 1);
+            legal_coord (xi, yi) (xi + 1, yi - 1);
+            legal_coord (xi, yi) (xi - 1, yi + 1);
+            legal_coord (xi, yi) (xi - 1, yi - 1);
+          ]
+    | _ -> true
+
+  let rec check_can_move t =
+    match t with
+    | h :: f ->
+        if check_all_piece_moves h t (piece_loc h) then check_can_move f
+        else false
+    | [] -> true
+
+  (** [add_to_moves piece] adds [piece] to list moves *)
+  let add_to_moves piece = piece :: moves
+
+  let check_draw t start =
+    match t with
+    | x :: y :: e :: f :: g :: h :: _ -> if x = g && h = y then true else false
+    | _ ->
+        check_can_move
+          (List.filter (fun x -> get_piece_color x = get_piece_color start) t)
+
   let update t (xi, yi) (xf, yf) =
     let start_opt = piece_at (xi, yi) t in
     let final_opt = piece_at (xf, yf) t in
@@ -323,12 +407,12 @@ module Board = struct
     | Some start, Some final ->
         if
           get_piece_color start = get_piece_color final
-          && (get_piece_type start <> King
+          && (get_piece_type start <> Rook
               && xi = 4
               && (xf = 0 || xf = 7)
               && yf = yi
               && (yf = 0 || yf = 7)
-             || get_piece_type start <> Rook
+             || get_piece_type start <> King
                 && (xi = 7 || xi = 0)
                 && xf = 4 && yi = yf
                 && (yi = 0 || yf = 7))

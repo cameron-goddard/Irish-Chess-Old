@@ -4,6 +4,8 @@ type t
 type color
 (** The type representing the two opponents in a game of chess. *)
 
+val get_board : t -> Board.Board.t
+
 type display_colors = Graphics.color * Graphics.color
 (** The type representing the colors of each side as displayed in a GUI. *)
 

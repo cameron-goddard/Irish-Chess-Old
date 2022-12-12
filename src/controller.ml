@@ -26,6 +26,8 @@ type piece_container = {
   pawns : piece list;
 }
 
+let get_board t : Board.t = t.board
+
 let rec game_step mode (b : Board.t) =
   if mode = "cli" then (
     print_endline (View.print_board b);
@@ -43,21 +45,41 @@ let rec game_step mode (b : Board.t) =
         game_step mode b
     | Empty -> game_step mode b
     | Quit -> exit 0)
-  else if mode = "gui" then (
+  else if mode = "gui/w_text" then (
     View.draw_board b;
     print_string "> ";
-    let input = parse (read_line ()) in
-    match input with
-    | Move (st, en) ->
-        (* ANSITerminal.erase Screen; *)
-        process_move mode b st en
-    | Castle dir -> raise (Failure "Unimplemented")
-    | Help -> raise (Failure "Unimplemented")
-    | Info ->
-        Printf.printf "pressed info\n";
-        game_step mode b
-    | Empty -> game_step mode b
-    | Quit -> exit 0)
+    try
+      let input = parse (read_line ()) in
+      match input with
+      | Move (st, en) ->
+          (* ANSITerminal.erase Screen; *)
+          process_move mode b st en
+      | Castle dir -> raise (Failure "Unimplemented")
+      | Help -> raise (Failure "Unimplemented")
+      | Info ->
+          Printf.printf "pressed info\n";
+          game_step mode b
+      | Empty -> game_step mode b
+      | Quit -> exit 0
+    with _ ->
+      print_endline "INVALID MOVE ... try again";
+      game_step mode b)
+  else if mode = "gui/no_text" then (
+    try
+      View.draw_board b;
+      let start_status = Graphics.wait_next_event [ Button_down ] in
+      let st =
+        ((start_status.mouse_x / 50) - 1, (start_status.mouse_y / 50) - 1)
+      in
+      let end_status = Graphics.wait_next_event [ Button_down ] in
+      let en = ((end_status.mouse_x / 50) - 1, (end_status.mouse_y / 50) - 1) in
+      process_move mode b st en;
+      print_endline
+        (string_of_int start_status.mouse_x ^ string_of_int start_status.mouse_y);
+      game_step mode b
+    with _ ->
+      print_endline "CLICK ON THE BOARD";
+      game_step mode b)
   else
     let event = Graphics.wait_next_event [ Key_pressed ] in
     if event.key == 'q' then exit 0
