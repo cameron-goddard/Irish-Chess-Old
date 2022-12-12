@@ -144,6 +144,7 @@ let rec make_combined_positions pos x_lst inc acc =
 let x_lst = make_positions_x 8 [] 0 0 1
 let xy_lst = make_combined_positions 8 x_lst 1 []
 
+(** [patterned_board xy_lst] draws all the pieces at [xy_lst] coordinates *)
 let rec patterned_board board xy_lst =
   match xy_lst with
   | [] -> ()
@@ -165,7 +166,7 @@ let rec patterned_board board xy_lst =
       (* colored_tile Graphics.magenta (x * 50) (y * 50) 50; *)
       patterned_board board t
 
-(* Takes combined position list and draws it *)
+(** [draw_helper xy_lst] draws a patterned board at [xy_lst] coordinates *)
 let rec draw_helper xy_lst =
   match xy_lst with
   | [] -> []
@@ -184,7 +185,8 @@ let rec print_xy_list lst =
       print_endline (string_of_int x ^ string_of_int y);
       print_xy_list t
 
-(* Writes Notation according to xy_list and size *)
+(** [write_letters lst size] draws alphabectical notation at [lst] board with
+    [size] *)
 let rec write_letters lst size =
   match lst with
   | [] -> []
@@ -194,7 +196,7 @@ let rec write_letters lst size =
       write_letters t size
   | (x, y) :: t -> write_letters t size
 
-(* Writes Numerical Notation according to xy_list and size *)
+(** [write_numbers lst size] draws numerical notation at [lst] board with [size] *)
 let rec write_numbers lst size =
   match lst with
   | [] -> []
@@ -204,9 +206,14 @@ let rec write_numbers lst size =
       write_numbers t size
   | (x, y) :: t -> write_numbers t size
 
+(** [mouse_to_graphics input] converts Graphics.mouse_x, Graphics.mouse_y
+    [input] to coordinate positions withing the GUI *)
+
 let mouse_to_graphics input =
   match input with
   | x, y -> ((x / 50) - 1, (y / 50) - 1)
+
+(** [draw_board board] draws the [board] *)
 
 let draw_board board =
   write_numbers xy_lst 50;
@@ -214,6 +221,8 @@ let draw_board board =
   draw_helper xy_lst;
   patterned_board board xy_lst;
   ()
+
+(** [init] draws the inital board *)
 
 let init =
   Graphics.open_graph "";
