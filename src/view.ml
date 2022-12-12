@@ -51,10 +51,32 @@ let draw_rook size pos =
   match pos with
   | x, y ->
       Graphics.fill_rect
-        (x + (size / 5))
+        (x + (size / 8))
         (y + (size / 20))
-        (3 * size / 5)
-        (size * 9 / 10)
+        ((3 * size / 4) - (size / 12))
+        (size / 6);
+      Graphics.fill_rect
+        (x + (size / 6) + (size / 10))
+        (y + (size / 20) + (size / 6))
+        (3 * size / 8)
+        (size * 4 / 7);
+      Graphics.fill_rect
+        (x + (size / 6) - (size / 15))
+        (y + (size / 20) + (size / 6) + (size * 4 / 7))
+        (size / 6) (size / 6);
+      Graphics.fill_rect
+        (x + (size / 6) + (size / 2))
+        (y + (size / 20) + (size / 6) + (size * 4 / 7))
+        (size / 6) (size / 6);
+      Graphics.fill_rect
+        (x + (size / 6) + (size / 4))
+        (y + (size / 20) + (size / 6) + (size * 4 / 7))
+        (size / 7) (size / 7)
+
+(* Pretty Print Rook  *)
+(* original rook function *)
+(* let draw_rook size pos = match pos with | x, y -> Graphics.fill_rect (x +
+   (size / 5)) (y + (size / 20)) (3 * size / 5) (size * 9 / 10) *)
 
 (** [draw_knight size pos] draws a knight of [size] at [pos] *)
 let draw_knight size pos =
