@@ -50,24 +50,29 @@ let colored_tile clr left_x left_y size =
 let draw_rook size pos =
   match pos with
   | x, y ->
+      (* Draws Base *)
       Graphics.fill_rect
         (x + (size / 8))
         (y + (size / 20))
         ((3 * size / 4) - (size / 12))
         (size / 6);
+      (* Draws Mid Section *)
       Graphics.fill_rect
         (x + (size / 6) + (size / 10))
         (y + (size / 20) + (size / 6))
         (3 * size / 8)
         (size * 4 / 7);
+      (* Draws Top left SQ *)
       Graphics.fill_rect
         (x + (size / 6) - (size / 15))
         (y + (size / 20) + (size / 6) + (size * 4 / 7))
         (size / 6) (size / 6);
+      (* Draws Top Right SQ *)
       Graphics.fill_rect
         (x + (size / 6) + (size / 2))
         (y + (size / 20) + (size / 6) + (size * 4 / 7))
         (size / 6) (size / 6);
+      (* Draws Middle SQ *)
       Graphics.fill_rect
         (x + (size / 6) + (size / 4))
         (y + (size / 20) + (size / 6) + (size * 4 / 7))
@@ -124,7 +129,15 @@ let draw_queen size pos =
 let draw_pawn size pos =
   match pos with
   | x, y ->
-      Graphics.fill_poly [| (x, y); (x + size, y); (x + (size / 2), size + y) |]
+      Graphics.fill_ellipse
+        (x + (size / 2))
+        (y + (size / 3))
+        (size / 3) (size / 4);
+      Graphics.fill_circle (x + (size / 2)) (y + (4 * size / 7)) (size / 5);
+      Graphics.fill_circle (x + (size / 2)) (y + (11 * size / 14)) (size / 8)
+
+(* let draw_original_pawn size pos = match pos with | x, y -> Graphics.fill_poly
+   [| (x, y); (x + size, y); (x + (size / 2), size + y) |] *)
 
 (** [draw_pt piece size pos] draws a Piece of type [piece] with size [size] at
     position [pos] *)
