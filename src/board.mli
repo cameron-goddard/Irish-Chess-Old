@@ -20,5 +20,7 @@ module Board : sig
 
   exception InvalidMove of string
   (** [InvalidMove] is raised when a piece move cannot be completed. *)
+
   exception Checkmate of string
+  (** [Checkmate] is raised when a piece move causes checkamte. *)
 end

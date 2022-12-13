@@ -271,7 +271,7 @@ let board_tests =
       :: List.filter
            (fun x -> piece_loc x <> (1, 2) && piece_loc x <> (0, 1))
            check_board);
-    test_update "white kign escaping check"
+    test_update "white king escaping check"
       (Board.update check_board (1, 2) (0, 1))
       (0, 0) (0, 1)
       (create King White 0 1
@@ -282,9 +282,9 @@ let board_tests =
              && piece_loc x <> (0, 0))
            check_board);
     test_update "black queen causing check with bishop blocking"
-      (Board.update check_board (1, 2) (0, 3))
+      (Board.update check_board (1, 2) (3, 0))
       (0, 1) (1, 0)
-      (create Bishop White 1 0 :: create Queen Black 0 1
+      (create Bishop White 1 0 :: create Queen Black 3 0
       :: List.filter
            (fun x -> piece_loc x <> (1, 2) && piece_loc x <> (0, 1))
            check_board);
@@ -292,11 +292,11 @@ let board_tests =
       (create King White 0 1
       :: List.filter (fun x -> piece_loc x <> (0, 0)) check_board_update);
     test_update "white bishop capturing queen"
-      (Board.update check_board (1, 3) (1, 0))
+      (Board.update check_board (1, 2) (1, 0))
       (0, 1) (1, 0)
       (create Bishop White 1 0
       :: List.filter
-           (fun x -> piece_loc x <> (1, 3) && piece_loc x <> (0, 1))
+           (fun x -> piece_loc x <> (1, 2) && piece_loc x <> (0, 1))
            check_board);
   ]
 

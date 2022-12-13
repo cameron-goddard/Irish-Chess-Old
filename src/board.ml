@@ -6,7 +6,7 @@ module Board = struct
   exception InvalidMove of string
   exception Checkmate of string
 
-  let moves : piece list = []
+  let moves = ref []
 
   let check_draw t =
     match t with
@@ -163,12 +163,12 @@ module Board = struct
             (create King (get_piece_color start) 4 color)
             (List.filter
                (fun x -> get_piece_color x = get_piece_color start)
-               moves)
+               !moves)
           || List.mem
                (create Rook (get_piece_color start) left color)
                (List.filter
                   (fun x -> get_piece_color x = get_piece_color start)
-                  moves)
+                  !moves)
         then raise (InvalidMove "Cannot castle")
         else if not (piece_on_path t (xi, yi) (xf, yf)) then
           create Rook (get_piece_color start)
@@ -186,6 +186,37 @@ module Board = struct
         else raise (InvalidMove "Pieces on path")
         (* implement castle *)
     | _ -> t
+
+  (** [valid_move start t (xi, yi), (xf, yf)] returns the updated [t] if piece
+      [start] at position [(xi, yi)] is able to move to position [(xf, yf)].
+      Raises [InvalidMove] if move cannot be done *)
+  let valid_move_without_check start t (xi, yi) (xf, yf) =
+    match get_piece_type start with
+    | Pawn ->
+        if
+          xi = xf
+          && pawn_y start (xi, yi) (xf, yf)
+          && piece_at (xf, yf) t = None
+        then move_to t start (xf, yf)
+        else if
+          Int.abs (xf - xi) = 1
+          && pawn_y start (xi, yi) (xf, yf)
+          && piece_at (xf, yf) t <> None
+        then capture t start (xf, yf)
+        else if Int.abs (yf - yi) = 2 then special_move start t (xi, yi) (xf, yf)
+        else raise (InvalidMove "Invalid move for pawn")
+    | Knight ->
+        if kinght_valid_move (xi, yi) (xf, yf) then capture t start (xf, yf)
+        else raise (InvalidMove "Invalid move for knight")
+    | Bishop -> bishop_valid_move t start (xi, yi) (xf, yf)
+    | Rook -> rook_valid_move t start (xi, yi) (xf, yf)
+    | Queen -> (
+        match (xf - xi, yf - yi) with
+        | x, 0 | 0, x -> rook_valid_move t start (xi, yi) (xf, yf)
+        | x, y -> bishop_valid_move t start (xi, yi) (xf, yf))
+    | King ->
+        if king_valid_move (xi, yi) (xf, yf) then capture t start (xf, yf)
+        else raise (InvalidMove "Invalid move for king")
 
   (** [valid_move start t (xi, yi), (xf, yf)] returns the updated [t] if piece
       [start] at position [(xi, yi)] is able to move to position [(xf, yf)].
@@ -219,8 +250,16 @@ module Board = struct
         | x, y ->
             check_status (bishop_valid_move t start (xi, yi) (xf, yf)) start)
     | King ->
-        if check_prev t start (xf, yf) && king_valid_move (xi, yi) (xf, yf) then
-          capture t start (xf, yf)
+        let new_board =
+          create King (get_piece_color start) xf yf
+          :: List.filter (fun x -> piece_loc x = (xi, yi)) t
+        in
+        if
+          check_prev new_board new_board
+            (create King (get_piece_color start) xf yf)
+            (xf, yf)
+          && king_valid_move (xi, yi) (xf, yf)
+        then capture t start (xf, yf)
           (* else if (yi = if get_piece_color start = White then 0 else 7) && xi
              = 4 && yf = yi && get_piece_type begin match piece_at (xf, yf) t
              with | Some x -> x | None -> raise (InvalidMove "Incorrect Castle")
@@ -229,38 +268,39 @@ module Board = struct
 
   (** [check_prev (h :: lst) start (xf, yf)] determines if [(xf, yf)] is a valid
       king move by avoiding check *)
-  and check_prev t start (xf, yf) =
+  and check_prev t_org t start (xf, yf) =
     match t with
     | [] -> true
     | h :: lst -> (
         match get_piece_color h <> get_piece_color start with
         | true -> begin
             try
-              ignore (valid_move h (h :: lst) (piece_loc h) (xf, yf));
+              ignore (valid_move_without_check h t_org (piece_loc h) (xf, yf));
               false
-            with _ -> check_prev lst start (xf, yf)
+            with _ -> check_prev t_org lst start (xf, yf)
           end
-        | false -> check_prev lst start (xf, yf))
+        | false -> check_prev t_org lst start (xf, yf))
 
   (** [check_stats new_t start] determines if the updated t [new_t] is valid by
       checking if own king is in check *)
   and check_status new_t start =
     if
-      check_prev new_t start
+      check_prev new_t new_t start
         (piece_loc (find_king new_t (get_piece_color start)))
     then new_t
     else raise (InvalidMove "Will be in check")
 
   (** [check_pieces t start acc] finds the pieces in [t] that can check [king]
       and add them to list [acc] *)
-  and check_pieces t king acc =
+  and check_pieces t_org t king acc =
     match t with
     | [] -> acc
     | h :: lst -> (
         try
-          ignore (valid_move h t (piece_loc h) (piece_loc king));
+          ignore
+            (valid_move_without_check h t_org (piece_loc h) (piece_loc king));
           h :: acc
-        with _ -> check_pieces lst king acc)
+        with _ -> check_pieces t_org lst king acc)
 
   (** [block_path t (xi, yi) (xf, yf) piece] determines if there are pieces in
       [t] that are able to land on the path of [piece] from [(xi, yi)] to
@@ -268,7 +308,7 @@ module Board = struct
   and block_path t (xi, yi) (xf, yf) piece =
     if
       List.length
-        (check_pieces t
+        (check_pieces t t
            (create Pawn (rev_color (get_piece_color piece)) xf yf)
            [])
       <> 0
@@ -303,29 +343,28 @@ module Board = struct
     match piece_loc king_op with
     | x, y ->
         if
-          check_prev t king_op (x, y)
-          || check_prev t king_op (legal_coord (x, y) (x + 1, y))
-          || check_prev t king_op (legal_coord (x, y) (x, y + 1))
-          || check_prev t king_op (legal_coord (x, y) (x + 1, y + 1))
-          || check_prev t king_op (legal_coord (x, y) (x - 1, y))
-          || check_prev t king_op (legal_coord (x, y) (x, y - 1))
-          || check_prev t king_op (legal_coord (x, y) (x - 1, y - 1))
-          || check_prev t king_op (legal_coord (x, y) (x - 1, y + 1))
-          || check_prev t king_op (legal_coord (x, y) (x + 1, y - 1))
+          check_prev t t king_op (x, y)
+          || check_prev t t king_op (legal_coord (x, y) (x + 1, y))
+          || check_prev t t king_op (legal_coord (x, y) (x, y + 1))
+          || check_prev t t king_op (legal_coord (x, y) (x + 1, y + 1))
+          || check_prev t t king_op (legal_coord (x, y) (x - 1, y))
+          || check_prev t t king_op (legal_coord (x, y) (x, y - 1))
+          || check_prev t t king_op (legal_coord (x, y) (x - 1, y - 1))
+          || check_prev t t king_op (legal_coord (x, y) (x - 1, y + 1))
+          || check_prev t t king_op (legal_coord (x, y) (x + 1, y - 1))
         then false
         else
-          let lst_opps = check_pieces t king_op [] in
+          let lst_opps = check_pieces t t king_op [] in
           if List.length lst_opps = 1 then
             match lst_opps with
             | [ h ] ->
-                if List.length (check_pieces t h []) <> 0 then
-                  block_path t (piece_loc king_op) (piece_loc h) h
-                else true
+                if List.length (check_pieces t t h []) <> 0 then false
+                else block_path t (piece_loc king_op) (piece_loc h) h
             | _ -> failwith "Impossible Checkmate"
           else true
 
   (** [add_to_moves piece] adds [piece] to list moves *)
-  let add_to_moves piece = piece :: moves
+  let add_to_moves piece = moves := piece :: !moves
 
   let rec check_all_invalid_piece_moves start t (xi, yi) end_list =
     match end_list with
@@ -395,9 +434,6 @@ module Board = struct
         if check_all_piece_moves h t (piece_loc h) then check_can_move f
         else false
     | [] -> true
-
-  (** [add_to_moves piece] adds [piece] to list moves *)
-  let add_to_moves piece = piece :: moves
 
   let check_draw t start =
     match t with
