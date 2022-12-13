@@ -64,7 +64,7 @@ let bishop_move =
 
 let bishop_neg = create Bishop White 0 3
 let bishop_pos = create Bishop White 3 6
-let bishop_back = create Bishop White 2 3
+let bishop_back = create Bishop White 3 2
 
 let piece_to_string p =
   match Piece.piece_loc p with
@@ -79,6 +79,11 @@ let test_update str t init fin output =
   str >:: fun _ ->
   assert_equal (Board.update t init fin) output
     ~printer:(list_to_string piece_to_string)
+
+exception InvalidSomething
+
+let test_update_exn str t init fin (output : exn) =
+  str >:: fun _ -> assert_raises output (fun () -> Board.update t init fin)
 
 let tests =
   "board test suite"
@@ -127,9 +132,11 @@ let tests =
            :: List.filter
                 (fun x -> piece_loc x <> (1, 4) && piece_loc x <> (3, 6))
                 bishop_move);
-         test_update "white bishop diag right down" bishop_move (1, 4) (2, 3)
+         test_update "white bishop diag right down" bishop_move (1, 4) (3, 2)
            (bishop_back
            :: List.filter (fun x -> piece_loc x <> (1, 4)) bishop_move);
+         test_update_exn "white rook to white pawn" def_board (0, 0) (0, 2)
+           InvalidSomething;
        ]
 
 (* test_update "knight capturing" new_t (2, 4) (1, 2) new_t_cap; test_update

@@ -63,7 +63,9 @@ module Board = struct
       a x and y direction but not diagonally *)
   let rec piece_on_path t (xi, yi) (xf, yf) =
     let path = (xf - xi, yf - yi) in
-    if piece_at (xf, yf) t <> None && xf - xi <> 0 && yf - yi <> 0 then true
+    if xf - xi = 0 && yf - yi = 0 then false
+    else if piece_at (xf, yf) t <> None && (xf - xi <> 0 || yf - yi <> 0) then
+      true
     else
       match path with
       | 1, 0 | 0, 1 | 1, 1 | 0, -1 | -1, 0 | 1, -1 | -1, 1 | -1, -1 -> false
@@ -74,7 +76,7 @@ module Board = struct
           if y > 0 then piece_on_path t (xi, yi) (xf, yf - 1)
           else piece_on_path t (xi, yi) (xf, yf + 1)
       | x, y ->
-          if Int.abs x == Int.abs y then
+          if Int.abs x = Int.abs y then
             match (x > 0, y > 0) with
             | true, true -> piece_on_path t (xi, yi) (xf - 1, yf - 1)
             | false, false -> piece_on_path t (xi, yi) (xf + 1, yf + 1)
@@ -96,10 +98,14 @@ module Board = struct
     match (xf - xi, yf - yi) with
     | x, y ->
         if
-          (x < 0 && y < 0 && not (piece_on_path t (xi, yi) (xf + 1, yf + 1)))
-          || (x > 0 && y > 0 && not (piece_on_path t (xi, yi) (xf - 1, yf - 1)))
-          || (x > 0 && y < 0 && not (piece_on_path t (xi, yi) (xf - 1, yf + 1)))
-          || (x < 0 && y > 0 && not (piece_on_path t (xi, yi) (xf + 1, yf - 1)))
+          Int.abs x = Int.abs y
+          && ((x < 0 && y < 0 && not (piece_on_path t (xi, yi) (xf + 1, yf + 1)))
+             || x > 0 && y > 0
+                && not (piece_on_path t (xi, yi) (xf - 1, yf - 1))
+             || x > 0 && y < 0
+                && not (piece_on_path t (xi, yi) (xf - 1, yf + 1))
+             || x < 0 && y > 0
+                && not (piece_on_path t (xi, yi) (xf + 1, yf - 1)))
         then capture t start (xf, yf)
         else raise (InvalidMove "Invalid move for bishop")
 
@@ -423,6 +429,8 @@ module Board = struct
           else raise (InvalidMove "Piece of same color on tile")
         else if checkmate (valid_move start t (xi, yi) (xf, yf)) start then
           raise (Checkmate "Checkmate")
+        else if get_piece_color start = get_piece_color final then
+          raise (InvalidMove "Piece of same color on tile")
         else
           let final_list = valid_move start t (xi, yi) (xf, yf) in
           ignore (add_to_moves start);
