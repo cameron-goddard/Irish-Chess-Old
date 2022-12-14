@@ -7,6 +7,18 @@ open Command
 open View
 open Printf
 
+(** Test Plan: We decided to utilize glass-box testing, specifically trying to
+    get make bisect to 90 or above percent. The modules that we decided to test
+    were those that were exposed in the mli, as the methods that were not
+    exposed were helper functions (so they would be covered by testing main
+    functions). Since most of view and controller deal with a user input and the
+    GUI, it was difficult to OUnit test them. In turn, we decided that it was
+    best to OUnit test board, piece, and command, while view and controller were
+    manually tested. Furthermore, we also tested board manaully as easier to
+    find the edge cases while playing the game than through testing. The testing
+    approach demonstrates correctness as it follows chess rules while playing
+    the game *)
+
 (* loading file from data directory and turning into board *)
 let data_dir_prefix = "data" ^ Filename.dir_sep
 let default_json = Yojson.Basic.from_file (data_dir_prefix ^ "default.json")
