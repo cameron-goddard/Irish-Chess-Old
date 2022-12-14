@@ -139,7 +139,29 @@ let draw_bishop size pos =
 
 let draw_king size pos =
   match pos with
-  | x, y -> Graphics.fill_circle (x + (size / 2)) (y + (size / 2)) (size / 2)
+  | x, y ->
+      Graphics.fill_circle
+        (x + (size / 2))
+        (y + (size / 2) - (size / 14))
+        ((size / 3) + (size / 25));
+      Graphics.fill_rect
+        (x + (size / 5))
+        (y + (size / 20))
+        ((3 * size / 4) - (size / 8))
+        (size / 8);
+      Graphics.draw_rect
+        (x + (size / 3))
+        (y + size - (size / 5))
+        ((size / 2) - (size / 10))
+        (size / 10);
+      Graphics.fill_rect
+        (x + (size / 2) - (size / 25))
+        (y + (size / 10))
+        (size / 10)
+        (size * 9 / 10)
+
+(* let draw_original_king size pos = match pos with | x, y ->
+   Graphics.fill_circle (x + (size / 2)) (y + (size / 2)) (size / 2) *)
 
 (** [draw_queen size pos] draws a queen of [size] at [pos] *)
 let draw_queen size pos =
@@ -150,7 +172,7 @@ let draw_queen size pos =
           (x + (size / 3), y);
           (x + (2 * size / 3), y);
           (x, y + (size / 2));
-          (x + (size / 2), y + size);
+          (x + (size / 2), y + size - (size / 10));
           (x + size, y + (size / 2));
         |]
 
