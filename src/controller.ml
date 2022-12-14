@@ -46,75 +46,9 @@ let help_message =
   \    Quit: Quits the program.\n\
   \    "
 
-let rec game_step mode t (b : Board.t) =
-  if mode = "cli" then (
-    print_endline (View.print_board b t.name t.turn);
-    print_string "> ";
-    let input = parse (read_line ()) in
-    match input with
-    | Move (st, en) ->
-        (* ANSITerminal.erase Screen; *)
-        process_move mode t b st en
-    | Castle dir -> raise (Failure "Unimplemented")
-    | Load file -> raise (Failure "Unimplemented")
-    | Help ->
-        print_endline help_message;
-        game_step mode t b
-    | Info ->
-        Printf.printf "pressed info\n";
-        game_step mode t b
-    | Empty -> game_step mode t b
-    | Quit -> exit 0)
-  else if mode = "gui/w_text" then (
-    View.draw_board b;
-    print_string "> ";
-    try
-      let input = parse (read_line ()) in
-      match input with
-      | Move (st, en) -> process_move mode t b st en
-      | Castle dir -> raise (Failure "Unimplemented")
-      | Help -> raise (Failure "Unimplemented")
-      | Info ->
-          Printf.printf "pressed info\n";
-          game_step mode t b
-      | Empty -> game_step mode t b
-      | Quit -> exit 0
-    with _ ->
-      print_endline "INVALID MOVE ... try again";
-      game_step mode t b)
-  else if mode = "gui/no_text" then (
-    try
-      View.draw_board b;
-      let start_status = Graphics.wait_next_event [ Button_down ] in
-      let st =
-        ((start_status.mouse_x / 50) - 1, (start_status.mouse_y / 50) - 1)
-      in
-      let end_status = Graphics.wait_next_event [ Button_down ] in
-      let en = ((end_status.mouse_x / 50) - 1, (end_status.mouse_y / 50) - 1) in
-      process_move mode t b st en;
-      print_endline
-        (string_of_int start_status.mouse_x ^ string_of_int start_status.mouse_y);
-      game_step mode t b
-    with _ ->
-      print_endline "CLICK ON THE BOARD";
-      game_step mode t b)
-  else
-    let event = Graphics.wait_next_event [ Key_pressed ] in
-    if event.key == 'q' then exit 0
-    else if event.button then game_step mode t b
-    else game_step mode t b
-
-and process_move mode t b st en =
-  try
-    match Board.piece_at st b with
-    | Some p ->
-        if Piece.string_of_color (Piece.get_piece_color p) <> t.turn then ()
-        else if t.turn = "white" then t.turn <- "black"
-        else t.turn <- "white";
-        let b' = Board.update b st en in
-        game_step mode t b'
-    | None -> print_endline "no"
-  with Board.InvalidMove s -> print_endline s
+let info_message =
+  "Irish Chess created by Anthony Pizzolato, Cameron Goddard, Chris Price, and \
+   Sahib Manjal"
 
 let display_colors_of_json j =
   let l = to_list j in
@@ -178,13 +112,99 @@ let t_of_json j =
 let from_json json =
   try t_of_json json with Type_error (s, _) -> failwith ("Parsing error: " ^ s)
 
+let rec game_step mode t (b : Board.t) =
+  if mode = "cli" then (
+    print_endline (View.print_board b t.name t.turn);
+    print_string "> ";
+    try
+      let input = parse (read_line ()) in
+      ANSITerminal.erase Screen;
+      match input with
+      | Move (st, en) -> process_move mode t b st en
+      | Castle dir ->
+          print_endline "Sike you thought";
+          game_step mode t b
+      | Load file -> (
+          try
+            let f = Yojson.Basic.from_file ("data" ^ Filename.dir_sep ^ file) in
+            let new_game = from_json f in
+            print_endline
+              ("\nLoading in file \"" ^ "data" ^ Filename.dir_sep ^ file ^ "\"");
+            game_step mode new_game new_game.board
+          with Command.InvalidCommand str ->
+            print_endline ("Error: " ^ str);
+            game_step mode t b)
+      | Help ->
+          print_endline help_message;
+          game_step mode t b
+      | Info ->
+          print_endline info_message;
+          game_step mode t b
+      | Empty -> game_step mode t b
+      | Quit -> exit 0
+    with Command.InvalidCommand str ->
+      ANSITerminal.erase Screen;
+      print_endline "Invalid command";
+      game_step mode t b)
+  else if mode = "gui/w_text" then (
+    View.draw_board b;
+    print_string "> ";
+    try
+      let input = parse (read_line ()) in
+      match input with
+      | Move (st, en) -> process_move mode t b st en
+      | Castle dir -> raise (Failure "Unimplemented")
+      | Help -> raise (Failure "Unimplemented")
+      | Info ->
+          Printf.printf "pressed info\n";
+          game_step mode t b
+      | Empty -> game_step mode t b
+      | Quit -> exit 0
+      | _ -> game_step mode t b
+    with _ ->
+      print_endline "INVALID MOVE ... try again";
+      game_step mode t b)
+  else if mode = "gui/no_text" then (
+    try
+      View.draw_board b;
+      let start_status = Graphics.wait_next_event [ Button_down ] in
+      let st =
+        ((start_status.mouse_x / 50) - 1, (start_status.mouse_y / 50) - 1)
+      in
+      let end_status = Graphics.wait_next_event [ Button_down ] in
+      let en = ((end_status.mouse_x / 50) - 1, (end_status.mouse_y / 50) - 1) in
+      process_move mode t b st en;
+      print_endline
+        (string_of_int start_status.mouse_x ^ string_of_int start_status.mouse_y);
+      game_step mode t b
+    with _ ->
+      print_endline "CLICK ON THE BOARD";
+      game_step mode t b)
+  else
+    let event = Graphics.wait_next_event [ Key_pressed ] in
+    if event.key == 'q' then exit 0
+    else if event.button then game_step mode t b
+    else game_step mode t b
+
+and process_move mode t b st en =
+  try
+    match Board.piece_at st b with
+    | Some p ->
+        if Piece.string_of_color (Piece.get_piece_color p) <> t.turn then ()
+        else if t.turn = "white" then t.turn <- "black"
+        else t.turn <- "white";
+        let b' = Board.update b st en in
+        game_step mode t b'
+    | None -> print_endline "no"
+  with Board.InvalidMove s -> print_endline s
+
 let main () =
   let mode = Sys.argv.(1) in
   let arg = Sys.argv.(2) in
   let f = Yojson.Basic.from_file ("data" ^ Filename.dir_sep ^ arg) in
   let t = from_json f in
   if mode = "cli" then (
-    (* ANSITerminal.erase Screen; *)
+    ANSITerminal.erase Screen;
     ANSITerminal.print_string [ ANSITerminal.green ]
       "☘ Welcome to Irish Chess ☘\n";
     game_step mode t t.board)

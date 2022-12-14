@@ -23,7 +23,7 @@ let parse input =
           ( coords_of_notation (List.nth items_trimmed 1),
             coords_of_notation (List.nth items_trimmed 2) )
     | "castle" -> Castle ""
-    | "load" -> Load "placeholder"
+    | "load" -> Load (List.nth items_trimmed 1)
     | "help" -> Help
     | "info" -> Info
     | "quit" -> Quit

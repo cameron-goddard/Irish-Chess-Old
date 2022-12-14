@@ -10,6 +10,7 @@ type color
 (** The type representing the two opponents in a game of chess. *)
 
 val get_board : t -> Board.t
+(** [get_board t] returns the board field from the game instance [t]. *)
 
 val from_json : Yojson.Basic.t -> t
 (** [from_json g] is the game that [g] represents. Requires: [g] is a valid JSON
