@@ -14,6 +14,9 @@ module Board : sig
       at [(xi, yi)] to [(xf, yf)]. Raises [InvalidMove s] if the move cannot be
       completed. Requires: (xi, yi) is a valid piece to move. *)
 
+  val clear_moves : unit
+  (** [clear_moves] clears previous move history on t *)
+
   val graphics_rep : t -> (int * int) list
   (** [graphics_rep b] is the necessary information required to display [b] in a
       GUI or CLI. *)
@@ -23,4 +26,7 @@ module Board : sig
 
   exception Checkmate of string
   (** [Checkmate] is raised when a piece move causes checkamte. *)
+
+  exception Draw
+  (** [Draw] is raised when a piece move causes causes a Draw. *)
 end
