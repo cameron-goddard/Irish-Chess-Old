@@ -36,7 +36,8 @@ let print_board b name turn =
             ^ loop_board b x' y' (count + 1)
       else line_num ^ "· " ^ loop_board b x' y' (count + 1)
   in
-  loop_board b (-1) 7 0 ^ "    a b c d e f g h\n"
+  "\nPlaying board \"" ^ name ^ "\", " ^ turn ^ " to move" ^ "\n"
+  ^ loop_board b (-1) 7 0 ^ "    a b c d e f g h\n"
 
 (** [move_to t start (xf, yf)] changes [start] location to that of [(xf, yf)] *)
 
