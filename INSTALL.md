@@ -93,4 +93,4 @@ instructions on how make it work are provided below:
    make build
    ```
 
-4. Run the system using "make run" in the terminal in the directory of the project.
+4. Run the system using either "make cli", "make gui-w-text", or "make gui-no-text" in the terminal in the directory of the project.
