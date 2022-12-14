@@ -314,4 +314,4 @@ let draw_board board =
 
 let init =
   Graphics.open_graph "";
-  set_window_title "IRISH CHESS"
+  set_window_title "Irish Chess"

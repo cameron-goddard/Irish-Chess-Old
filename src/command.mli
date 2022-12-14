@@ -1,3 +1,4 @@
+(** The abstract type representing valid commands *)
 type command =
   | Move of (int * int) * (int * int)
   | Castle of string
@@ -5,7 +6,7 @@ type command =
   | Empty
   | Help
   | Info
-  | Quit  (** The abstract type representing valid commands *)
+  | Quit
 
 exception InvalidCommand of string
 (** [InvalidCommand] is raised when an invalid command is inputted by the user. *)
