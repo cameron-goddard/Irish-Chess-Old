@@ -36,3 +36,9 @@ zip:
 clean:
 	dune clean
 	rm -f chess.zip
+
+doc:
+	dune build @doc
+
+opendoc: doc
+	@bash opendoc.sh
