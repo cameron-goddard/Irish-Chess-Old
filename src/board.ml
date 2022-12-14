@@ -373,8 +373,10 @@ module Board = struct
 
   let clear_moves = moves := []
 
-  (** [check_all_invalid_piece_moves start t (xi, yi) end_list] checks if the
-      last 6 moves in [t] are a repition *)
+  (** [check_all_invalid_piece_moves start t (xi, yi) end_list] checks if all
+      the moves from piece [start] starting at [(xi,yi)] and ending at anywhere
+      in the list [endlist] in [t] are invalid moves. If so it returns true,
+      otherwise it returns false *)
   let rec check_all_invalid_piece_moves start t (xi, yi) end_list =
     match end_list with
     | (xf, yf) :: f -> begin
@@ -385,7 +387,8 @@ module Board = struct
       end
     | _ -> true
 
-  (** [list_straight (xi, yi)] checks if the last 6 moves in [t] are a repition *)
+  (** [list_straight (xi, yi)] generates the list of valid end tiles from a
+      position for pieces that can move straight i.e. like a rook *)
   let list_straight (xi, yi) =
     let temp = ref [] in
     for x = 1 to 7 do
@@ -398,7 +401,8 @@ module Board = struct
     done;
     !temp
 
-  (** [list_diagonal (xi, yi)] checks if the last 6 moves in [t] are a repition *)
+  (** [list_diagonal (xi, yi)] generate the list of valid end tiles for pieces
+      that can move diagonal (like a bishop) given starting position (xi,yi) *)
   let list_diagonal (xi, yi) =
     let temp = ref [] in
     for x = 1 to 7 do
@@ -411,8 +415,8 @@ module Board = struct
     done;
     !temp
 
-  (** [check_all_piece_moves start t (xi, yi)] checks if the last 6 moves in [t]
-      are a repition *)
+  (** [check_all_piece_moves start t (xi, yi)] checks if there are any valid
+      move for starting piece [start] at position [xi,yi] for a given board [t] *)
   let check_all_piece_moves start t (xi, yi) =
     match get_piece_type start with
     | Pawn ->
@@ -441,7 +445,8 @@ module Board = struct
           ]
     | _ -> true
 
-  (** [check_can_move t] checks if the last 6 moves in [t] are a repition *)
+  (** [check_can_move t] checks if any piece gan move for the the given board
+      [t] i.e if it is a stalemate *)
   let rec check_can_move t =
     match t with
     | h :: f ->
@@ -449,7 +454,8 @@ module Board = struct
         else false
     | [] -> true
 
-  (** [check_draw t start] checks if the last 6 moves in [t] are a repition *)
+  (** [check_draw t start] checks if the last 6 moves in [t] are a repition or
+      if none of the pieces can move i.e. a stalemate*)
   let check_draw t start =
     if List.length !moves >= 6 then
       match t with
