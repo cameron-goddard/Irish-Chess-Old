@@ -87,21 +87,40 @@ let draw_rook size pos =
 let draw_knight size pos =
   match pos with
   | x, y ->
-      Graphics.fill_ellipse
-        (x + (size / 2))
-        (y + (size / 2))
-        (size / 4) (size / 2)
+      (* base *)
+      Graphics.fill_rect
+        (x + (size / 3))
+        (y + (size / 20))
+        ((3 * size / 4) - (size / 7))
+        (size / 8);
+      Graphics.fill_rect
+        (x + (3 * size / 4) - (size / 6))
+        (y + (size / 20) + (size / 8))
+        (size / 6)
+        (2 * size / 3);
+      Graphics.fill_poly
+        [|
+          (x + (size / 4), y + (2 * size / 4));
+          (x + (size * 7 / 8), y + (3 * size / 4) - (size / 10));
+          (x + (size / 2), size + y);
+        |]
+
+(* let draw_origina_knight size pos = match pos with | x, y ->
+   Graphics.fill_ellipse (x + (size / 2)) (y + (size / 2)) (size / 4) (size /
+   2) *)
 
 (** [draw_bishop size pos] draws a bishop of [size] at [pos] *)
 
 let draw_bishop size pos =
   match pos with
   | x, y ->
+      (* Base *)
       Graphics.fill_rect
         (x + (size / 5))
         (y + (size / 20))
         ((3 * size / 4) - (size / 8))
         (size / 8);
+      (* Body *)
       Graphics.fill_poly
         [|
           (x + (size / 2), y + (size / 6));
@@ -109,6 +128,7 @@ let draw_bishop size pos =
           (x + (size / 2), y + size - (size / 8));
           (x + size - (size / 3), y + (size / 2));
         |];
+      (* Hat *)
       Graphics.draw_circle (x + (size / 2)) (y + (11 * size / 14)) (size / 8)
 
 (* let draw_original_bishop size pos = match pos with | x, y ->
