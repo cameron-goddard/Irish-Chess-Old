@@ -99,7 +99,7 @@ let t_of_json j =
   {
     name = j |> member "name" |> to_string;
     colors = j |> member "colors" |> display_colors_of_json;
-    turn = "White";
+    turn = "white";
     board =
       (j |> member "light_init"
       |> piece_container_of_json White
@@ -190,12 +190,19 @@ and process_move mode t b st en =
   try
     match Board.piece_at st b with
     | Some p ->
-        if Piece.string_of_color (Piece.get_piece_color p) <> t.turn then ()
-        else if t.turn = "white" then t.turn <- "black"
+        if Piece.string_of_color (Piece.get_piece_color p) <> t.turn then (
+          print_endline "Invalid move: Incorrect color";
+          game_step mode t b)
+        else if t.turn = "white" then (
+          t.turn <- "black";
+          let b' = Board.update b st en in
+          game_step mode t b')
         else t.turn <- "white";
         let b' = Board.update b st en in
         game_step mode t b'
-    | None -> print_endline "no"
+    | None ->
+        print_endline "Invalid move: No piece at selected position.";
+        game_step mode t b
   with Board.InvalidMove s -> print_endline s
 
 let main () =
