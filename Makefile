@@ -13,13 +13,13 @@ run:
 	OCAMLRUNPARAM=b dune exec bin/main.exe default.json
 
 cli:
-	OCAMLRUNPARAM=b dune exec bin/main.exe "cli" default.json
+	OCAMLRUNPARAM=b dune exec bin/main.exe "cli" castle.json
 
 gui-w-text: 
 	OCAMLRUNPARAM=b dune exec bin/main.exe "gui/w_text" default.json
 
 gui-no-text: 
-	OCAMLRUNPARAM=b dune exec bin/main.exe "gui/no_text" default.json
+	OCAMLRUNPARAM=b dune exec bin/main.exe "gui/no_text" castle.json
 
 
 bisect: bisect-clean

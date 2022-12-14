@@ -11,6 +11,9 @@ let data_dir_prefix = "data" ^ Filename.dir_sep
 let default_json = Yojson.Basic.from_file (data_dir_prefix ^ "default.json")
 let default = from_json default_json
 let def_board = get_board default
+let castle_json = Yojson.Basic.from_file (data_dir_prefix ^ "castle.json")
+let castle = from_json castle_json
+let castle_board = get_board castle
 
 (* helper functions to test command *)
 let test_parse str input output =
@@ -132,6 +135,30 @@ let check_board =
 let check_board_update =
   [ king_edge; create Queen Black 3 0; create Rook Black 1 0; king_win ]
 
+let check_top_right = create King Black 7 7
+let pawn_block = create Pawn Black 7 6
+let knight_check = create Knight White 4 6
+let bishop_check = create Bishop White 6 4
+
+let bishop_mate_board =
+  [
+    check_top_right;
+    pawn_block;
+    knight_check;
+    bishop_check;
+    create King White 0 0;
+  ]
+
+let only_king_board = [ create King Black 0 2; create King White 0 0 ]
+
+let castle_board_non_json =
+  [
+    create King Black 4 5;
+    create King White 4 7;
+    create Rook White 0 7;
+    create Rook White 7 7;
+  ]
+
 (* helper functions to test board *)
 let piece_to_string p =
   match Piece.piece_loc p with
@@ -154,6 +181,7 @@ let test_update_exn str t init fin (output : bool) =
        Board.update t init fin;
        false
      with _ -> true)
+    ~printer:string_of_bool
 
 (* test suites *)
 let command_tests =
@@ -298,6 +326,56 @@ let board_tests =
       :: List.filter
            (fun x -> piece_loc x <> (1, 2) && piece_loc x <> (0, 1))
            check_board);
+    test_update_exn "queen causing checkmate"
+      (Board.update check_board (0, 1) (1, 0))
+      (1, 2) (1, 0) true;
+    test_update_exn "bishop causing checkmate" bishop_mate_board (6, 4) (5, 5)
+      true;
+    test_update_exn "king not valid check move"
+      (Board.update
+         (List.filter (fun x -> piece_loc x <> (4, 6)) bishop_mate_board)
+         (6, 4) (5, 5))
+      (7, 7) (6, 6) true;
+    test_update_exn "king camnot move next to opposing king" only_king_board
+      (0, 2) (0, 1) true;
+    test_update_exn "there is only one king"
+      (List.filter (fun x -> piece_loc x <> (0, 0)) only_king_board)
+      (0, 2) (0, 1) true;
+    test_update "castle on white king side" castle_board_non_json (4, 7) (7, 7)
+      (create Rook White 5 0 :: create King White 6 0
+      :: List.filter
+           (fun x -> piece_loc x <> (7, 7) && piece_loc x <> (4, 7))
+           castle_board_non_json);
+    test_update "castle on white queen side with rook first"
+      castle_board_non_json (0, 7) (4, 7)
+      (create Rook White 2 0 :: create King White 1 0
+      :: List.filter
+           (fun x -> piece_loc x <> (0, 7) && piece_loc x <> (4, 7))
+           castle_board_non_json);
+    test_update "castle on white queen side" castle_board_non_json (4, 7) (0, 7)
+      (create Rook White 2 0 :: create King White 1 0
+      :: List.filter
+           (fun x -> piece_loc x <> (0, 7) && piece_loc x <> (4, 7))
+           castle_board_non_json);
+    test_update "castle on black king side" castle_board (4, 7) (7, 7)
+      (create Rook Black 5 7 :: create King Black 6 7
+      :: List.filter
+           (fun x -> piece_loc x <> (7, 7) && piece_loc x <> (4, 7))
+           castle_board);
+    test_update "castle on black queen side" castle_board (4, 7) (0, 7)
+      (create Rook Black 2 7 :: create King Black 1 7
+      :: List.filter
+           (fun x -> piece_loc x <> (0, 7) && piece_loc x <> (4, 7))
+           castle_board);
+    test_update_exn "cannot castle, white king in wrong position"
+      (Board.update castle_board (4, 0) (4, 1))
+      (4, 1) (7, 0) true;
+    test_update_exn "cannot castle, white king moved to same spot"
+      (Board.update (Board.update castle_board (4, 0) (4, 1)) (4, 1) (4, 0))
+      (4, 0) (0, 0) true;
+    test_update_exn "cannot castle, piece on path"
+      (create Knight White 1 0 :: castle_board)
+      (4, 0) (0, 0) true;
   ]
 
 (* test_update "knight capturing" new_t (2, 4) (1, 2) new_t_cap; test_update

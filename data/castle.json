@@ -1,0 +1,33 @@
+{
+  "name": "Default",
+  "colors": [
+    "000000",
+    "ffffff"
+  ],
+  "light_init": {
+    "king": [
+      "e1"
+    ],
+    "queen": [],
+    "bishop": [],
+    "knight": [],
+    "rook": [
+      "a1",
+      "h1"
+    ],
+    "pawn": []
+  },
+  "dark_init": {
+    "king": [
+      "e8"
+    ],
+    "queen": [],
+    "bishop": [],
+    "knight": [],
+    "rook": [
+      "a8",
+      "h8"
+    ],
+    "pawn": []
+  }
+}
