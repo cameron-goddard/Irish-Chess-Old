@@ -7,6 +7,20 @@ open Command
 open View
 open Printf
 
+(** Test Plan: We decided to utilize glass-box testing, specifically trying to
+    get make bisect to 90 or above percent. The modules that we decided to test
+    were those that were exposed in the mli, as the methods that were not
+    exposed were helper functions (so they would be covered by testing main
+    functions). Since most of view and controller deal with a user input and the
+    GUI, it was difficult to OUnit test them. In turn, we decided that it was
+    best to OUnit test board, piece, and command, while view and controller were
+    manually tested. Furthermore, we also tested board manaully as easier to
+    find the edge cases while playing the game than through testing. The testing
+    approach demonstrates correctness as it follows chess rules while playing
+    the game. It also demonstrates correctness as our test cases for the
+    features we fully implemented passed and the test cases for the features we
+    did not fully implement were the only ones that didn't pass *)
+
 (* loading file from data directory and turning into board *)
 let data_dir_prefix = "data" ^ Filename.dir_sep
 let default_json = Yojson.Basic.from_file (data_dir_prefix ^ "default.json")
@@ -26,11 +40,13 @@ let horde_king_json =
 let horde_king = from_json horde_king_json
 let horde_king_board = get_board horde_king
 
+(* [test_from_json_exn str json output] tests if there is an exception when
+   reading in the json [json]*)
 let test_from_json_exn str json output =
   str >:: fun _ ->
   assert_equal
     (try
-       from_json empty_json;
+       from_json json;
        false
      with _ -> true)
     output ~printer:string_of_bool
@@ -41,6 +57,8 @@ let controller_tests = [ test_from_json_exn "Empty json" empty_json true ]
 let test_parse str input output =
   str >:: fun _ -> assert_equal (Command.parse input) output
 
+(*[test_parse_exn str input output] tests if there is an exception when parsing
+  a given input [input]*)
 let test_parse_exn str input (output : bool) =
   str >:: fun _ ->
   assert_equal output
@@ -50,33 +68,49 @@ let test_parse_exn str input (output : bool) =
      with _ -> true)
 
 (* helper functions to test piece *)
-
+(*[test_string_of_piece_type str piece_type output] tests if a string if the
+  method in Piece [string_of_piece_type] returns the piece type [output]*)
 let test_string_of_piece_type str piece_type output =
   str >:: fun _ ->
   assert_equal
     (Piece.string_of_piece_type piece_type)
     output ~printer:String.escaped
 
+(*[test_string_of_color str color output] tests if a string if the method in
+  Piece [string_of_color] returns the piece type [output]*)
 let test_string_of_color str color output =
   str >:: fun _ ->
   assert_equal (Piece.string_of_color color) output ~printer:String.escaped
 
+(*[test_create str piece_type color x y output] tests if a piece created from
+  string [str] will be a piece with a given piece type [piece_type] color
+  [color] and coordinates [x],[y]*)
 let test_create str piece_type color x y output =
   str >:: fun _ -> assert_equal (Piece.create piece_type color x y) output
 
+(*[test_set_piece str piece_type color output] tests if the function set_piece
+  in piece creates a piece with [piece_type] and color [color] that is
+  equavilent to the expected [output]*)
 let test_set_piece str piece_type color output =
   str >:: fun _ -> assert_equal (Piece.set_piece piece_type color) output
 
+(*[test_piece_loc str piece output] tests if the location of [piece] is equal to
+  the expected output, [output]*)
 let test_piece_loc str piece output =
   str >:: fun _ -> assert_equal (Piece.piece_loc piece) output
 
+(*[test_get_piece_type str piece output] tests if the get fucntion will
+  succsessfully return the expected piece_type [output] given [piece]*)
 let test_get_piece_type str piece output =
   str >:: fun _ -> assert_equal (Piece.get_piece_type piece) output
 
+(*[test_get_piece_color str piece output] tests if the get fucntion will
+  succsessfully return the expected color [output] given [piece]*)
 let test_get_piece_color str piece output =
   str >:: fun _ -> assert_equal (Piece.get_piece_color piece) output
 
-(* helper function to test part of view *)
+(* [test_print_board str t a b output] tests wether the board outputed with the
+   given parameters [t a b] is equal to the expected output [output]*)
 let test_print_board str t a b output =
   str >:: fun _ ->
   assert_equal (View.print_board t a b) output ~printer:String.escaped
