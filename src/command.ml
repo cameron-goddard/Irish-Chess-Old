@@ -18,12 +18,16 @@ let parse input =
   if List.length items_trimmed = 0 then Empty
   else
     match List.nth items_trimmed 0 with
-    | "move" ->
-        Move
-          ( coords_of_notation (List.nth items_trimmed 1),
-            coords_of_notation (List.nth items_trimmed 2) )
+    | "move" -> (
+        try
+          Move
+            ( coords_of_notation (List.nth items_trimmed 1),
+              coords_of_notation (List.nth items_trimmed 2) )
+        with _ -> raise (InvalidCommand "Invalid move"))
     | "castle" -> Castle ""
-    | "load" -> Load (List.nth items_trimmed 1)
+    | "load" -> (
+        try Load (List.nth items_trimmed 1)
+        with _ -> raise (InvalidCommand "Invalid load"))
     | "help" -> Help
     | "info" -> Info
     | "quit" -> Quit

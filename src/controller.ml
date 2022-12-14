@@ -131,9 +131,13 @@ let rec game_step mode t (b : Board.t) =
             print_endline
               ("\nLoading in file \"" ^ "data" ^ Filename.dir_sep ^ file ^ "\"");
             game_step mode new_game new_game.board
-          with Command.InvalidCommand str ->
-            print_endline ("Error: " ^ str);
-            game_step mode t b)
+          with
+          | Command.InvalidCommand str ->
+              print_endline ("Error: " ^ str);
+              game_step mode t b
+          | _ ->
+              print_endline "Error: File does not exist";
+              game_step mode t b)
       | Help ->
           print_endline help_message;
           game_step mode t b
@@ -144,7 +148,7 @@ let rec game_step mode t (b : Board.t) =
       | Quit -> exit 0
     with Command.InvalidCommand str ->
       ANSITerminal.erase Screen;
-      print_endline "Invalid command";
+      print_endline str;
       game_step mode t b)
   else if mode = "gui/w_text" then (
     View.draw_board b;
