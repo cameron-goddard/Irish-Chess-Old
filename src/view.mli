@@ -1,6 +1,6 @@
 val init : unit
 
-val print_board : Board.Board.t -> string
+val print_board : Board.Board.t -> string -> string -> string
 (** [print_board b] is responsible for printing the board [b] to the screen. *)
 
 val draw_board : Board.Board.t -> unit

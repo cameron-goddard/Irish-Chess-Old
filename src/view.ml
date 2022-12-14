@@ -17,7 +17,7 @@ let rec board_has_piece_at x y b =
   | { piece_type = pt; color = c; x = px; y = py } :: t ->
       if px = x && py = y then true else board_has_piece_at x y t
 
-let print_board b =
+let print_board b name turn =
   let rec loop_board b x y count =
     let x' = (x + 1) mod 8 in
     let y' = if x = 7 then y - 1 else y in
