@@ -4,6 +4,7 @@ open Piece
 open Board
 open Controller
 open Command
+open View
 open Printf
 
 (* loading file from data directory and turning into board *)
@@ -14,6 +15,27 @@ let def_board = get_board default
 let castle_json = Yojson.Basic.from_file (data_dir_prefix ^ "castle.json")
 let castle = from_json castle_json
 let castle_board = get_board castle
+let empty_json = Yojson.Basic.from_file (data_dir_prefix ^ "empty.json")
+let horde_json = Yojson.Basic.from_file (data_dir_prefix ^ "horde.json")
+let horde = from_json horde_json
+let horde_board = get_board horde
+
+let horde_king_json =
+  Yojson.Basic.from_file (data_dir_prefix ^ "horde_king.json")
+
+let horde_king = from_json horde_king_json
+let horde_king_board = get_board horde_king
+
+let test_from_json_exn str json output =
+  str >:: fun _ ->
+  assert_equal
+    (try
+       from_json empty_json;
+       false
+     with _ -> true)
+    output ~printer:string_of_bool
+
+let controller_tests = [ test_from_json_exn "Empty json" empty_json true ]
 
 (* helper functions to test command *)
 let test_parse str input output =
@@ -53,6 +75,11 @@ let test_get_piece_type str piece output =
 
 let test_get_piece_color str piece output =
   str >:: fun _ -> assert_equal (Piece.get_piece_color piece) output
+
+(* helper function to test part of view *)
+let test_print_board str t a b output =
+  str >:: fun _ ->
+  assert_equal (View.print_board t a b) output ~printer:String.escaped
 
 (* board manipulation to test moves *)
 
@@ -199,7 +226,7 @@ let castle_board5 = castle_board
 
 let castle_board_non_json =
   [
-    create King Black 4 5;
+    create King Black 4 7;
     create King White 4 1;
     create Rook White 0 0;
     create Rook White 7 0;
@@ -212,6 +239,12 @@ let castle_board_non_json4 = castle_board_non_json
 let castle_board_non_json5 = castle_board_non_json
 let bishop_mate_board1 = bishop_mate_board
 let only_king_board1 = only_king_board
+
+let top_left_check =
+  [ create King Black 0 7; create King White 7 0; create Rook White 1 0 ]
+
+let bot_right_check =
+  [ create King Black 0 7; create King White 7 0; create Rook Black 6 7 ]
 
 (* helper functions to test board *)
 let piece_to_string p =
@@ -236,9 +269,7 @@ let test_update_exn str t init fin (output : bool) =
     (try
        Board.update t init fin;
        false
-     with
-    | Board.Draw -> false
-    | _ -> true)
+     with _ -> true)
     ~printer:string_of_bool
 
 (* test suites *)
@@ -268,6 +299,69 @@ let piece_tests =
     test_get_piece_type "Black queen" queen_check Queen;
     test_get_piece_type "White bishop" bishop_edge Bishop;
     test_piece_loc "left corner" king_edge (0, 0);
+  ]
+
+let view_tests =
+  [
+    test_print_board "print default board" def_board "irrelevant" "code"
+      "\n\
+      \  8 \226\153\150 \226\153\152 \226\153\151 \226\153\149 \226\153\148 \
+       \226\153\151 \226\153\152 \226\153\150 \n\
+      \  7 \226\153\153 \226\153\153 \226\153\153 \226\153\153 \226\153\153 \
+       \226\153\153 \226\153\153 \226\153\153 \n\
+      \  6 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \194\183 \n\
+      \  5 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \194\183 \n\
+      \  4 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \194\183 \n\
+      \  3 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \194\183 \n\
+      \  2 \226\153\159\239\184\142 \226\153\159\239\184\142 \
+       \226\153\159\239\184\142 \226\153\159\239\184\142 \
+       \226\153\159\239\184\142 \226\153\159\239\184\142 \
+       \226\153\159\239\184\142 \226\153\159\239\184\142 \n\
+      \  1 \226\153\156 \226\153\158 \226\153\157 \226\153\155 \226\153\154 \
+       \226\153\157 \226\153\158 \226\153\156 \n\
+      \    a b c d e f g h\n";
+    test_print_board "print castle board" castle_board "irrelevant" "code"
+      "\n\
+      \  8 \226\153\150 \194\183 \194\183 \194\183 \226\153\148 \194\183 \
+       \194\183 \226\153\150 \n\
+      \  7 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \194\183 \n\
+      \  6 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \194\183 \n\
+      \  5 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \194\183 \n\
+      \  4 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \194\183 \n\
+      \  3 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \194\183 \n\
+      \  2 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \194\183 \n\
+      \  1 \226\153\156 \194\183 \194\183 \194\183 \226\153\154 \194\183 \
+       \194\183 \226\153\156 \n\
+      \    a b c d e f g h\n";
+    test_print_board "print check board" check_board "irrelevant" "code"
+      "\n\
+      \  8 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \226\153\148 \n\
+      \  7 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \194\183 \n\
+      \  6 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \194\183 \n\
+      \  5 \194\183 \226\153\150 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \194\183 \n\
+      \  4 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \194\183 \n\
+      \  3 \194\183 \226\153\149 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \194\183 \n\
+      \  2 \226\153\157 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \194\183 \n\
+      \  1 \226\153\154 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
+       \194\183 \n\
+      \    a b c d e f g h\n";
   ]
 
 let board_tests =
@@ -340,6 +434,11 @@ let board_tests =
     test_update "white queen up"
       (Board.update def_board (3, 1) (3, 2))
       (3, 0) (3, 1) queen_manip;
+    test_update "white queen hor"
+      (Board.update queen_manip (3, 1) (6, 4))
+      (6, 4) (4, 4)
+      (create Queen White 4 4
+      :: List.filter (fun x -> piece_loc x <> (3, 1)) queen_manip);
     test_update "white queen diag up right" queen_manip1 (3, 1) (6, 4)
       (queen_diag_pos
       :: List.filter (fun x -> piece_loc x <> (3, 1)) queen_manip1);
@@ -420,6 +519,12 @@ let board_tests =
       :: List.filter
            (fun x -> piece_loc x <> (7, 7) && piece_loc x <> (4, 7))
            castle_board1);
+    test_update "castle on black king side with init rook" castle_board1 (7, 7)
+      (4, 7)
+      (create Rook Black 5 7 :: create King Black 6 7
+      :: List.filter
+           (fun x -> piece_loc x <> (7, 7) && piece_loc x <> (4, 7))
+           castle_board1);
     test_update "castle on black queen side" castle_board2 (4, 7) (0, 7)
       (create Rook Black 2 7 :: create King Black 1 7
       :: List.filter
@@ -437,11 +542,111 @@ let board_tests =
     test_update_exn "draw by repition" draw (4, 1) (4, 0) true;
   ]
 
-(* test_update "king cant move due to check prev" new_t_cap (1, 0) (2, 0) new_t;
-   test_update "checkmate yessir" checkmate (4, 6) (0, 6) new_t; *)
+let unique_board_tests =
+  [
+    test_update_exn "multiple kings on board" horde_king_board (0, 7) (0, 6)
+      true;
+    test_update_exn "cannot move pawn 2 due to starting past default"
+      horde_board (7, 3) (7, 5) true;
+    test_update_exn "cannot castle when not rook at final"
+      (create Pawn White 0 0
+      :: List.filter (fun x -> piece_loc x <> (0, 0)) castle_board)
+      (4, 0) (0, 0) true;
+    test_update_exn "cannot castle when not king at final"
+      (create Pawn White 4 0 :: create King White 5 0
+      :: List.filter (fun x -> piece_loc x <> (4, 0)) castle_board)
+      (0, 0) (4, 0) true;
+    test_update_exn "cannot castle, white rook moved to same spot"
+      (Board.update (Board.update castle_board (0, 0) (0, 1)) (0, 1) (0, 0))
+      (0, 0) (4, 0) true;
+    test_update "black knight stopping check by blocking path"
+      (Board.update
+         (create Knight Black 4 5 :: bishop_mate_board)
+         (6, 4) (5, 5))
+      (4, 5) (6, 6)
+      (create Knight Black 6 6 :: create Bishop White 5 5
+      :: List.filter (fun x -> piece_loc x <> (6, 4)) bishop_mate_board);
+    test_update "black king check in top left" top_left_check (1, 0) (0, 0)
+      (create Rook White 0 0
+      :: List.filter (fun x -> piece_loc x <> (1, 0)) top_left_check);
+    test_update "white king check in bot right" bot_right_check (6, 7) (7, 7)
+      (create Rook Black 7 7
+      :: List.filter (fun x -> piece_loc x <> (6, 7)) bot_right_check);
+    test_update_exn "invalid white pawn move" def_board (0, 1) (0, 1) true;
+    test_update_exn "invalid white knight move" def_board (1, 0) (0, 3) true;
+    test_update_exn "cannot move own other piece when in check"
+      (Board.update bishop_mate_board (6, 4) (5, 5))
+      (7, 6) (7, 5) true;
+    test_update_exn "moving onto piece of same color" def_board (0, 0) (0, 1)
+      true;
+    test_update_exn "king not allowed to move into check" bishop_mate_board
+      (7, 7) (6, 7) true;
+    test_update_exn "cannot castle because will be in check"
+      (create Queen White 1 1 :: castle_board)
+      (4, 7) (0, 7) true;
+    test_update "black pawn causing check"
+      [ create Pawn Black 1 2; create King Black 7 7; create King White 0 0 ]
+      (1, 2) (1, 1)
+      [ create Pawn Black 1 1; create King Black 7 7; create King White 0 0 ];
+    test_update "black pawn causing check by moving two"
+      [ create Pawn Black 1 6; create King Black 2 5; create King White 0 3 ]
+      (1, 6) (1, 4)
+      [ create Pawn Black 1 4; create King Black 2 5; create King White 0 3 ];
+    test_update_exn "cannot capture pawn that is checking"
+      [ create Pawn Black 1 1; create King Black 2 2; create King White 0 0 ]
+      (0, 0) (1, 1) true;
+    test_update "black pawn moving two to block path"
+      (create Pawn Black 4 6
+      :: [
+           create King Black 7 7; create King White 0 0; create Bishop White 3 3;
+         ])
+      (4, 6) (4, 4)
+      (create Pawn Black 4 4
+      :: [
+           create King Black 7 7; create King White 0 0; create Bishop White 3 3;
+         ]);
+    test_update_exn "invalid move to block path; open new path"
+      (create Rook White 0 7 :: create Pawn Black 6 7 :: create Bishop White 5 5
+      :: List.filter (fun x -> piece_loc x <> (6, 4)) bishop_mate_board)
+      (6, 7) (6, 6) true;
+    test_update_exn "stalemate/draw when only moves will result in check"
+      (Board.update
+         (create Knight Black 0 1
+         :: [
+              create King White 0 0;
+              create Pawn Black 0 2;
+              create Rook Black 6 7;
+              create King Black 7 7;
+            ])
+         (6, 7) (1, 7))
+      (0, 0) (1, 0) true;
+    test_update_exn "draw when there are only king of each on the board"
+      (Board.update
+         (create Knight Black 4 5
+         :: [ create King White 5 5; create King Black 7 7 ])
+         (5, 5) (4, 5))
+      (7, 7) (6, 6) true;
+    test_update "move bishop right down more than 2"
+      (Board.update
+         (Board.update bishop_mate_board (4, 6) (2, 5))
+         (6, 4) (3, 7))
+      (3, 7) (6, 4)
+      (create Bishop White 6 4 :: create Knight White 2 5
+      :: List.filter
+           (fun x -> piece_loc x <> (6, 4) && piece_loc x <> (4, 6))
+           bishop_mate_board);
+  ]
 
 let suite =
   "test suite for Irish Chess"
-  >::: List.flatten [ command_tests; piece_tests; board_tests ]
+  >::: List.flatten
+         [
+           controller_tests;
+           command_tests;
+           piece_tests;
+           view_tests;
+           board_tests;
+           unique_board_tests;
+         ]
 
 let _ = run_test_tt_main suite

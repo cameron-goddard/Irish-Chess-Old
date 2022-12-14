@@ -9,6 +9,7 @@ module Board = struct
 
   let moves = ref []
 
+  (** [check_draw t] checks if the last 6 moves in [t] are a repition *)
   let check_draw t =
     match t with
     | x :: y :: e :: f :: g :: h :: _ -> if x = g && h = y then true else false
@@ -192,9 +193,9 @@ module Board = struct
         (* implement castle *)
     | _ -> t
 
-  (** [valid_move start t (xi, yi), (xf, yf)] returns the updated [t] if piece
-      [start] at position [(xi, yi)] is able to move to position [(xf, yf)].
-      Raises [InvalidMove] if move cannot be done *)
+  (** [valid_move_without_check start t (xi, yi), (xf, yf)] returns the updated
+      [t] if piece [start] at position [(xi, yi)] is able to move to position
+      [(xf, yf)]. Raises [InvalidMove] if move cannot be done *)
   let valid_move_without_check start t (xi, yi) (xf, yf) =
     match get_piece_type start with
     | Pawn ->
@@ -224,8 +225,8 @@ module Board = struct
         else raise (InvalidMove "Invalid move for king")
 
   (** [valid_move start t (xi, yi), (xf, yf)] returns the updated [t] if piece
-      [start] at position [(xi, yi)] is able to move to position [(xf, yf)].
-      Raises [InvalidMove] if move cannot be done *)
+      [start] at position [(xi, yi)] is able to move to position [(xf, yf)]
+      without causing check. Raises [InvalidMove] if move cannot be done *)
   let rec valid_move start t (xi, yi) (xf, yf) =
     match get_piece_type start with
     | Pawn ->
@@ -265,10 +266,6 @@ module Board = struct
             (xf, yf)
           && king_valid_move (xi, yi) (xf, yf)
         then capture t start (xf, yf)
-          (* else if (yi = if get_piece_color start = White then 0 else 7) && xi
-             = 4 && yf = yi && get_piece_type begin match piece_at (xf, yf) t
-             with | Some x -> x | None -> raise (InvalidMove "Incorrect Castle")
-             end = Rook then special_move start t (xi, yi) (xf, yf) *)
         else raise (InvalidMove "Invalid move for king")
 
   (** [check_prev (h :: lst) start (xf, yf)] determines if [(xf, yf)] is a valid
@@ -338,7 +335,7 @@ module Board = struct
             | false, false -> block_path t (xi, yi) (xf + 1, yf + 1) piece
             | true, false -> block_path t (xi, yi) (xf - 1, yf + 1) piece
             | false, true -> block_path t (xi, yi) (xf + 1, yf - 1) piece
-          else raise (InvalidMove "Invalid path ")
+          else raise (InvalidMove "Invalid path")
 
   (** [checkmate t start] checks whether or not the opposing king will be in
       checkmate after move *)
@@ -376,6 +373,8 @@ module Board = struct
 
   let clear_moves = moves := []
 
+  (** [check_all_invalid_piece_moves start t (xi, yi) end_list] checks if the
+      last 6 moves in [t] are a repition *)
   let rec check_all_invalid_piece_moves start t (xi, yi) end_list =
     match end_list with
     | (xf, yf) :: f -> begin
@@ -386,6 +385,7 @@ module Board = struct
       end
     | _ -> true
 
+  (** [list_straight (xi, yi)] checks if the last 6 moves in [t] are a repition *)
   let list_straight (xi, yi) =
     let temp = ref [] in
     for x = 1 to 7 do
@@ -398,6 +398,7 @@ module Board = struct
     done;
     !temp
 
+  (** [list_diagonal (xi, yi)] checks if the last 6 moves in [t] are a repition *)
   let list_diagonal (xi, yi) =
     let temp = ref [] in
     for x = 1 to 7 do
@@ -410,6 +411,8 @@ module Board = struct
     done;
     !temp
 
+  (** [check_all_piece_moves start t (xi, yi)] checks if the last 6 moves in [t]
+      are a repition *)
   let check_all_piece_moves start t (xi, yi) =
     match get_piece_type start with
     | Pawn ->
@@ -438,6 +441,7 @@ module Board = struct
           ]
     | _ -> true
 
+  (** [check_can_move t] checks if the last 6 moves in [t] are a repition *)
   let rec check_can_move t =
     match t with
     | h :: f ->
@@ -445,6 +449,7 @@ module Board = struct
         else false
     | [] -> true
 
+  (** [check_draw t start] checks if the last 6 moves in [t] are a repition *)
   let check_draw t start =
     if List.length !moves >= 6 then
       match t with
