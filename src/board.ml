@@ -5,6 +5,7 @@ module Board = struct
 
   exception InvalidMove of string
   exception Checkmate of string
+  exception Draw
 
   let moves = ref []
 
@@ -373,6 +374,8 @@ module Board = struct
   (** [add_to_moves piece] adds [piece] to list moves *)
   let add_to_moves piece = moves := piece :: !moves
 
+  let clear_moves = moves := []
+
   let rec check_all_invalid_piece_moves start t (xi, yi) end_list =
     match end_list with
     | (xf, yf) :: f -> begin
@@ -443,11 +446,26 @@ module Board = struct
     | [] -> true
 
   let check_draw t start =
-    match t with
-    | x :: y :: e :: f :: g :: h :: _ -> if x = g && h = y then true else false
-    | _ ->
-        check_can_move
-          (List.filter (fun x -> get_piece_color x = get_piece_color start) t)
+    if List.length !moves >= 6 then
+      match t with
+      | x :: y :: e :: f :: g :: h :: _ ->
+          if x = g && h = y then true
+          else if
+            check_can_move
+              (List.filter
+                 (fun x -> get_piece_color x = get_piece_color start)
+                 t)
+          then true
+          else false
+      | _ ->
+          if
+            check_can_move
+              (List.filter
+                 (fun x -> get_piece_color x = get_piece_color start)
+                 t)
+          then true
+          else false
+    else false
 
   let update t (xi, yi) (xf, yf) =
     let start_opt = piece_at (xi, yi) t in
@@ -472,6 +490,7 @@ module Board = struct
           raise (Checkmate "Checkmate")
         else if get_piece_color start = get_piece_color final then
           raise (InvalidMove "Piece of same color on tile")
+          (* else if check_draw !moves start then raise Draw *)
         else
           let final_list = valid_move start t (xi, yi) (xf, yf) in
           ignore (add_to_moves start);
@@ -479,6 +498,7 @@ module Board = struct
     | Some start, _ ->
         if checkmate (valid_move start t (xi, yi) (xf, yf)) start then
           raise (Checkmate "Checkmate")
+          (* else if check_draw !moves start then raise Draw *)
         else
           let final_list = valid_move start t (xi, yi) (xf, yf) in
           ignore (add_to_moves start);
