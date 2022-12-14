@@ -337,8 +337,9 @@ let piece_tests =
 
 let view_tests =
   [
-    test_print_board "print default board" def_board "irrelevant" "code"
+    test_print_board "print default board" def_board "default" "white"
       "\n\
+       Playing board \"default\", white to move\n\n\
       \  8 \226\153\150 \226\153\152 \226\153\151 \226\153\149 \226\153\148 \
        \226\153\151 \226\153\152 \226\153\150 \n\
       \  7 \226\153\153 \226\153\153 \226\153\153 \226\153\153 \226\153\153 \
@@ -358,8 +359,9 @@ let view_tests =
       \  1 \226\153\156 \226\153\158 \226\153\157 \226\153\155 \226\153\154 \
        \226\153\157 \226\153\158 \226\153\156 \n\
       \    a b c d e f g h\n";
-    test_print_board "print castle board" castle_board "irrelevant" "code"
+    test_print_board "print castle board" castle_board "castle" "white"
       "\n\
+       Playing board \"castle\", white to move\n\n\
       \  8 \226\153\150 \194\183 \194\183 \194\183 \226\153\148 \194\183 \
        \194\183 \226\153\150 \n\
       \  7 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
@@ -377,8 +379,9 @@ let view_tests =
       \  1 \226\153\156 \194\183 \194\183 \194\183 \226\153\154 \194\183 \
        \194\183 \226\153\156 \n\
       \    a b c d e f g h\n";
-    test_print_board "print check board" check_board "irrelevant" "code"
+    test_print_board "print check board" check_board "checkmate" "white"
       "\n\
+       Playing board \"checkmate\", white to move\n\n\
       \  8 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
        \226\153\148 \n\
       \  7 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \194\183 \
@@ -669,6 +672,50 @@ let unique_board_tests =
       :: List.filter
            (fun x -> piece_loc x <> (6, 4) && piece_loc x <> (4, 6))
            bishop_mate_board);
+    test_update "synthesis 1"
+      (Board.update
+         (Board.update bishop_mate_board (4, 6) (2, 5))
+         (6, 4) (3, 7))
+      (3, 7) (6, 4)
+      (create Bishop White 6 4 :: create Knight White 2 5
+      :: List.filter
+           (fun x -> piece_loc x <> (6, 4) && piece_loc x <> (4, 6))
+           bishop_mate_board);
+    test_update_exn "in stalemate because all pieces cannot move"
+      [
+        create King White 0 0;
+        create Pawn White 0 1;
+        create Pawn Black 0 2;
+        create Pawn White 7 1;
+        create Pawn Black 7 2;
+        create King Black 2 0;
+      ]
+      (0, 0) (1, 0) true;
+    test_update_exn "castling two pieces that are not a king and rook"
+      [
+        create King White 7 0;
+        create King Black 7 7;
+        create Knight White 4 0;
+        create Bishop White 0 0;
+      ]
+      (0, 0) (4, 0) true;
+    test_update_exn "king move causing stalemate"
+      [ create King White 0 0; create Rook Black 7 1; create King Black 3 0 ]
+      (3, 0) (2, 0) true;
+    test_update_exn "white pawn moving two but below 2 "
+      [ create King White 0 0; create King Black 7 7; create Pawn White 1 0 ]
+      (1, 0) (1, 2) true;
+    test_update "white pawn moving 1 and then two"
+      (Board.update
+         [ create King White 0 0; create King Black 7 7; create Pawn White 1 0 ]
+         (1, 0) (1, 1))
+      (1, 1) (1, 3)
+      (create Pawn White 1 3
+      :: List.filter
+           (fun x -> piece_loc x <> (1, 0))
+           [
+             create King White 0 0; create King Black 7 7; create Pawn White 1 0;
+           ]);
   ]
 
 let suite =
